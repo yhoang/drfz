@@ -1,0 +1,279 @@
+##########  PRI-analyzer Update Log
+#		Author:	Yen Hoang
+#		Written in R
+#		2015-2020
+##########	PRI-analyzer Update Log
+
+########## v0.39b
+*** general
+- debugged function fcs$saveCutoffsToAll: current set of cutoffs and checks should be applied to every file in the project
+- rearranged tabs and buttons to reduce window space
+########## 20200204
+
+########## v0.39a
+*** triploTs
+- changed: output table name from "[project]_PRIvis_metadata.csv" to "[project]_PRItrivis_metadata.csv"
+- debug: output table writes the right file name in meta output table
+
+*** diploTs
+- added columns: date, cofactor, the cutoffs of the features A, B, min and max value of the bins and absolute range of Feature B in the output table "[project]_PRIdivis_metadata.csv"
+  --> PLEASE RENAME OR MOVE ALL OLDER CSV FILES (otherwise the column names will not fit with the values)
+########## 20191028
+
+########## v0.39
+*** triploTs
+- added columns: date, cofactor, the cutoffs of the features and absolute range of Feature C in the output table "[project]_PRIvis_metadata.csv"
+  --> PLEASE DELETE OR MOVE ALL OLDER CSV FILES (otherwise the column names will not fit with the values)
+- added checkboxes next to Feature A/B/C to update the triploT Overview function (NOT WORKING YET!)
+
+*** diploTs
+- added check button: "Hide A-", if no distraction of (Feature A-) is desired
+- bug fixed: if statistical method "density" or "frequency" is chosen, the cutoff of Feature B will be neglected
+- note: if a cutoff for Feature B is set, only B+ cells will be observed!
+########## 20191022
+
+
+########## v0.38b
+*** general
+- bug fixed: gating
+- gating manual: 
+    a. click "Click rectangle" or do manual rectangle with coordinates
+    b. check "Gate data"
+    c. click "Plot rectangle data only"
+    d. ( change features A/B/C optionally ) and click "Plot triploT"
+    e. repeat a.-d. if gating deeper
+    WARNING: Gated data cannot be saved yet.
+########## 20190524
+
+
+########## v0.38
+*** general
+- added: button GUI to refresh marker frame (scrolling appears)
+- added: radio options for asinh cofactor cof
+- added: cofactor added in labels first line
+- changed: histogram colors
+- changed: features X, Y and Z to A, B and C, respectively
+
+*** triploTs
+- added: button "Plot for all files" to plot a triploT with fixed Features A, B and C for every file in the project
+- added: check option "Bins <minCount". Bins will be displayed in pale color if cells are in the bins but less than minCount.
+
+*** diploTs
+- added: check option "Bins <minCount". Bins will be displayed in pale color if cells are in the bins but less than minCount.
+########## 20190513
+
+
+########## v0.37b
+*** general
+- Metadata file will be created parallele to triplotting. Works also for triploT Overviews.
+  In working folder (type 'getwd()'+Enter to find out where) a table of metadata including quadrant percentages will be created if cutoffs are set, named as "[project name]_PRIvis_metadata.csv". 
+  Please check if there is already an existent one. If so, new results will only be appended.
+  [q1-q4].total = percentage of cells displayed to total [black/blue]
+  [q1-q4].prodcells = percentage of producing cells per quadrant [red]
+  [q1-q4].prodcellsplus = percentage of producing cells to total [green]
+  q1 bottom left
+  q2 bottom right
+  q3 upper right
+  q4 upper left
+########## 20180709
+
+
+########## v0.37a
+*** general
+- auto-completion of the features should work now. CD4 stays CD4 and not CD44. Same as IL2.
+########## 20180621
+
+
+########## v0.37
+*** general
+- legend title bug fixed, any x/y-range should work
+- if there are more than one project in database, you will be prompt to chose one first
+- cutoffs will stay put if there arent any saved cutoffs in database; 
+  if cutoffs dont suit you, click on button "Reset cutoffs"
+- added button "Save cutoffs to all" saves cutoffs and checks to all files in project
+- cutoffs will be rounded to one decimal place
+*** triploTs
+- added button "Plot triploT Overview with fixed Feature A and B" to plot only different features C
+########## 20180531
+
+
+########## v0.36
+*** general
+- fixed switching between projects
+*** diploTs
+- fixed diGraphs plots label
+- diGraphs plot (button added underneath) with prior negative value set to zero
+########## 20180419
+
+
+########## v0.35
+*** general
+- debugged: save radio and check buttons and FI and graphics parameters
+- features can now typed in in a simple manner. if one want to chose "175Lu-PD-1", one can type in "pd1" or "PD1" or "Pd1" "pD-1" "PD-1" (it does not look for capital or symbols)
+*** triploTs
+- debugged: MFI only from bins with mincells, not total (removed rows with NA in my.calc['Group.1',])
+- debugged: # cells total and # cells displayed now correctly calculated
+*** diploTs
+- diGraphs added: highest 10 ranges of selected features will be plotted as line graphs
+########## 20180312
+
+
+########## v0.34
+*** general
+- in tab "log" you can now see the version logs
+- reminder: if you switch files and already had cutoffs saved for that file, click on "Load cutoffs from DB" to set them
+*** triploTs
+- legend title changed:
+    if feature name is added with color name by a dot (e.g. "IFng.[color]"), only the short name will be listed
+    if cutoff of feature is set, put on legend title 
+- all percentage numbers are displayed if the necessary cutoffs are set
+- reminder: percentage numbers per quadrant
+    black - percentage of cells in quadrant to total cells 
+    blue  - percentage of cells in quadrant to total positive cells
+    red   - percentage of cells which are positive for feature C in quadrant to total quadrant cells
+    green - percentage of cells which are positive for feature C to total cells
+- meanFI(+) now faster
+*** diploTs
+- minor plot issues
+###### 20180111
+
+
+########## v0.33
+*** general
+feature bug fixed (now really works for all features!): if feature 1/2/3 is not existent in new selected file [combobox], chose feature 1/2/3 after FSC/SSC.
+###### 20171221
+
+
+
+########## v0.32
+*** general
+feature bug fixed: if feature 1/2/3 is not existent in new selected file [combobox], chose feature 1/2/3 after FSC/SSC.
+###### 20171128
+
+
+########## v0.31
+*** general
+- saves workspace automatically, statistical option, transformation, feature ID are saved, but only for one workspace for now. 
+        So if someone uses PRI, and another one uses afterwards on datastore, the settings are from the last user. This will be changed later on dependant on the database. For Rias own computer, it should work properly. 
+- cutoffs rounded automatically
+- histograms should work properly (?)
+- in tab "Preprocession">"calculate cutoffs" you can now chose to calculate cutoffs of selected features automatically or by manually clicking 
+
+*** diploTs
+- plot diploTs with constant feature optimized for MS data: more diploTs can be plotted
+
+*** triploTs
+- window plot size and legend is fixed
+###### 20171103
+
+
+########## v0.30
+*** general
+- project switch: title text also switches to new file name
+- note: if no cutoffs and checks in the new selected file/project were set, the recent ones will get copied temporarily. click on "Reset cutoffs" to undo
+
+*** triploTs
+- overview with param X only added
+- overview in general now printable
+- folder to save the overview PDFs can now be selected correctly
+- note: if more than 16 features were chosen, it would be 16 separate PDFs, each PDF for each Feature A
+- note: density plots were removed
+###### 20171013
+
+
+
+########## v0.29
+*** general
+- cutoff panel: checkboxes next to the cutoffs will also be saved, so that you do not have to click again everytime you open the database
+- note: you do not need to close and open the script, if you want to change databases --> with "Open new database" on main window (where "File" and version is shown)
+
+*** diploTs
+- one window should plot a maximum of 26 diploTs
+
+*** triploTs
+- overview is now fixed, no limitations there. if you select more than 16 markers, there will be separate PDF files for each page (instead of one)
+###### 20170908
+
+
+########## v0.28
+bugs fixed in triploT overviews:
+ - cutoffs
+ - labels
+
+bugs fixed in triploT tab:
+ - plot density after selecting new file
+
+Q(uestion) to triploT tab: I actually wanted to remove the "plot density" button. Instead, choose "density" in frame "statistical method" (as in diploT tab). Do you prefer to have it put?
+###### 20170901
+
+
+
+########## v0.27
+*** general
+- Preprocession > Automatic cutoff calculation works (mostly)
+###### 20170829
+
+
+########## v0.26
+- project load fixed
+- cutoff errors fixed
+- new label: project name listed
+- new function: File > open database
+- tab (reiter) "table info" readded
+###### 20170824
+
+
+########## v0.25
+- save cutoffs is working.
+- gating is working.
+- plot density plots is working.
+- "Save active window" will save the triplots 60% smaller than used to, egal wie es auf dem Monitor aussieht, die PDF sollte gut sein.
+- diplot has option "show bins<mincells" check it out and comment
+- legend in triplots now optional
+###### 20170818
+
+
+########## v0.22
+- triploTs axes label changed:
+  if cutoff is set for 1st and 2nd param, the cutoff is displayed in axes label
+
+- triploTs title changed:
+    1st line:  [sample name]: [calculation method]
+    2nd line w/o given cutoff : cells(min/max)=[minimum cell count of displayed bins]/[maximum cell count of displayed bins]
+    2nd line w/ given cutoff: cells(min/max)=[minimum cell count of displayed bins]/[maximum cell count of displayed bins]; cutoff=[cutoff set for 3rd param]
+    3rd line: [total cells] - [displayed cells]; binsize=[binsize/step],#bins=[number of bins]
+
+- triploTs percentage display changed: 
+  if you choose calculation method "MFI(+)", the blue percentage number displays % producing cells of 3rd param in quadrant x relative to total amount of producing cells
+  (before it was black, meaning numbers displayed % of all cells from quadrant x relative to total amount of cells)
+
+- diploTs percentage display changed: 
+  if you choose calculation method "freq", the red percentage number displays % producing cells of 2nd param on left/right side of cutoff(1st param) relative to total amount of producing cells of 2nd    param
+  (before it was green, meaning numbers displayed % producing cells of 2nd param on left/right side of cutoff(1st param) relative to total amount of cells)
+###### 20170517
+
+
+########## v0.21
+- bug fixed: triploT Overview densities: richtige Achsenbeschriftung und cutoffs/Prozente
+- bug fixed: dynamic MFI range kann nun ohne Fehler ausgeführt werden
+- automatic cutoffs: 
+  + saved cutoffs will be listed in the last column in tab "dataframe" with table name [project name]_markerIdentity
+  + saved cutoffs per file will be automatically loaded, if they are in the database
+  + with a tab switch (e.g. from diploT tab to triploT tab) cutoffs will be temporary applied
+  + with a file switch (e.g. x-axis "IFNg" instead of "TNFa") cutoffs will be temporary applied
+  + if cutoffs were changed during a session, the old cutoffs can be loaded from database
+  + if cutoffs should be resetted (to zero), click "Reset Cutoffs"
+  + if cutoffs were changed during a session and you close the app correctly (File>Quit), the app will ask you to save the new setted cutoffs
+- reminder: in the tab "Dataframe" you can see all meta data which you or the measure device have listed.
+- button "Save Rect_Data" might not work.
+###### 20170421
+
+
+########## v0.20
+cutoff saving und atomatic gating (incl. bugs) implemented
+###### 20170407
+
+
+########## v0.18
+plot history works
+###### 20170308
