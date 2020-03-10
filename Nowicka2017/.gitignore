@@ -1,0 +1,11 @@
+.Rhistory
+.Rproj.user/
+*.Rproj
+*tmp*.sh
+*tmp*.R
+._*
+.DS_Store
+Figures/._*
+Figures/.DS_Store
+
+.Rproj.user
