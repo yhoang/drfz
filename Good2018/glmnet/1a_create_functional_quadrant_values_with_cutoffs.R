@@ -27,15 +27,15 @@ stat.info = "absRange"
 # stat.info = "variance"
 # stat.info = "freq_green"
 # stat.info = "mean"
-cluster.size = 3
-project.name = "Pervanadate"
-project.name.long = project.name
+cluster.size = 6
+project.name = "TSLP"
+project.name.long = "TSLP"
 
 subgroup = "Training"
-subgroup = "Validation"
+# subgroup = "Validation"
 coverage = "func"
 ### set paths
-folder.path = "/scratch/drfz/Good2018/glmnet"
+folder.path = "/scratch/drfz/projects/Good2018/glmnet"
 setwd(folder.path)
 ################
 
@@ -50,16 +50,16 @@ setwd(folder.path)
 libraries = c("RSQLite","dplyr","reshape2","foreach","doParallel")
 lapply(libraries,require, character.only = TRUE)
 ### load functions
-source("/scratch/drfz/Good2018/PRI_funs.R")
+source("/scratch/drfz/projects/Good2018/glmnet/PRI_funs.R")
 
 
 ### metatable file
-# cohort_full=read.csv(sprintf("/scratch/drfz/Good2018/%s_%s_patient_cohort.csv",project.name,subgroup))
+# cohort_full=read.csv(sprintf("/scratch/drfz/projects/Good2018/%s_%s_patient_cohort.csv",project.name,subgroup))
 # cohort = cohort_full[,c(1,5,8,11,16,15)]
-sub.set = read.csv(sprintf("/scratch/drfz/Good2018/%s_%s_patient_cohort.csv",project.name,subgroup))
+sub.set = read.csv(sprintf("/scratch/drfz/projects/Good2018/%s_%s_patient_cohort.csv",project.name,subgroup))
 sub.set$Relapse.Status= factor(sub.set$Relapse.Status)
 sub.set$Patient.ID = factor(sub.set$Patient.ID)
-col.vec.func = as.vector(unlist(read.table(file="/scratch/drfz/Good2018/columns_functional.txt")))
+col.vec.func = as.vector(unlist(read.table(file="/scratch/drfz/projects/Good2018/columns_functional.txt")))
 
 # load data base -----------------------------------------
 db.path=file.path("","data","databases")
