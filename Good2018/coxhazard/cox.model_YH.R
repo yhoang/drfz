@@ -1,4 +1,71 @@
+#!/usr/bin/R
+# Authors: Eric Urbansky and Yen Hoang
+# Transfer from 20200302
 
+### ---------- input
+conditional <- FALSE
+path_to_project <- "D:/drfz/Good2018/"
+
+
+### ---------- load R packages
+librarys <- c("survival", "glmnet", "readxl", "dplyr", "doParallel", "xlsx", "survminer", "pROC")
+#install.packages(librarys, lib = "C:/Program Files/R/R-3.6.1/library")
+lapply(librarys, require, character.only = TRUE)
+
+#a usefull print function
+printf <- function(...) invisible(print(sprintf(...)))
+
+### ---------- load and clean patient data from excel
+patient_data <- read_excel(paste0(path_to_project, "patient_data.xlsx"))
+#View(patient_data)
+
+#set columstype from patien data str to numeric values
+#colums with numeric value : Age at Diagnosis, WBC Count, Date of Diagnosis, Time to Relapse(Day), CCR (Day)
+patient_data$`Time to Relapse (Days)` <- as.numeric(patient_data$`Time to Relapse (Days)`)
+patient_data$`CCR (Days)` <- as.numeric(patient_data$`CCR (Days)`)
+patient_data$`Time to Relapse (Days)`[is.na(patient_data$`Time to Relapse (Days)`)] <- 0
+patient_data$`CCR (Days)`[is.na(patient_data$`CCR (Days)`)] <- 0
+patient_data$`Age at Diagnosis` <- as.numeric(patient_data$`Age at Diagnosis`)
+patient_data$`WBC Count` <- as.numeric(patient_data$`WBC Count`)
+#patien_data$`Date of Diagnosis` <- as.numeric(patien_data$`Date of Diagnosis`)
+
+#new Collum "Survival Time (Day)
+patient_data$`Survival Time (Day)` <- patient_data$`Time to Relapse (Days)` +  patient_data$`CCR (Days)`
+#fehlermeldung unknown column <- "Survival Time (Day) vorher erstellen?
+
+#yes2 == yes
+patient_data$`Relapse Status`[patient_data$`Relapse Status` == "Yes2"] <- "Yes"
+
+#Set DDPR Status to nuermic binary values
+patient_data$`DDPR Risk`[patient_data$`DDPR Risk` == "Low"] <- 0
+patient_data$`DDPR Risk`[patient_data$`DDPR Risk` == "High"] <- 1
+
+#reduce patien data to necessary colums
+cohort <- patient_data[, c(1, 11, 8, 16, 15, 17)]
+
+#divide cohort into training and validation set
+training.set <- cohort[which(cohort$Cohort == "Training"), 1:6]
+validation.set <- cohort[which(cohort$Cohort == "Validation"), 1:6]
+
+#bind training and validation set to totalset
+total.set <- bind_rows(training.set, validation.set)
+
+### ---------- load PRI features as RDS
+if (conditional) {
+#absRange Condition 1.1
+df.training <- readRDS(paste0(path_to_project, "Basal/Basal_Training_func_quadrant_absRange_condi1.1_cof0.2.rds"))
+df.validation <- readRDS(paste0(path_to_project, "Basal/Basal_Validation_func_quadrant_absRange_condi1.1_cof0.2.rds"))
+} else {
+#absRange ohne Condi 1.1
+df.training <- readRDS(paste0(path_to_project, "Basal/Basal_Training_func_quadrant_absRange_cof0.2.rds"))
+df.validation <- readRDS(paste0(path_to_project, "Basal/Basal_Validation_func_quadrant_absRange_cof0.2.rds"))
+}
+
+#safe rownames ("patien ID")
+rownames.validation <- row.names(df.validation)
+rownames.training <- row.names(df.training)
+
+df.total <- bind_rows(df.training, df.validation)
 
 sample.size <- ncol(df.total)
 
@@ -241,7 +308,7 @@ for (i in 1:length(threshold)) {
 }
 
 #safe ROC plot as pdf
-pdf("Y:/AG_Baumgrass/Eric.Urbansky/Good/RDS/HIST-ROC-Plot.pdf")
+pdf(paste0(path_to_project, "Basal/HIST-ROC-Plot.pdf"))
 par(mfrow = c(2, 2), pty = "s")
 #plot Roc Kurve
 plot(all.fp.rate, all.sens, type = "l", ylab = "Sensitivity", xlab = "False positiv Rate", ylim = c(0, 1), xlim = c(0, 1), main = "ROC Kurv")
@@ -303,7 +370,7 @@ names(vergleich.validation)[3] <- "ddpr Status"
 names(vergleich.validation)[4] <- "Fehler ddpr"
 names(vergleich.validation)[5] <- "Predicted Status Model"
 names(vergleich.validation)[6] <- "Fehler Model"
-write.xlsx(vergleich.validation, "Y:/AG_Baumgrass/Eric.Urbansky/Good/RDS/VergleichV_001.xlsx")
+write.xlsx(vergleich.validation, paste0(path_to_project, "Basal/Prediction_DDPR_PRI_Training.xlsx"))
 
 #find error in Prediction.training for ddpr
 fehler.ddpr <- df.training[, 2] - df.training[, 3]
@@ -325,11 +392,11 @@ names(vergleich.training)[3] <- "ddpr Status"
 names(vergleich.training)[4] <- "Fehler ddpr"
 names(vergleich.training)[5] <- "Predicted Status Model"
 names(vergleich.training)[6] <- "Fehler Model"
-write.xlsx(vergleich.training, "Y:/AG_Baumgrass/Eric.Urbansky/Good/RDS/VergleichT_001.xlsx")
+write.xlsx(vergleich.training, paste0(path_to_project, "Basal/Prediction_DDPR_PRI_Validation.xlsx"))
 
 #bind training and validation error
 vergleich.total <- bind_rows(vergleich.training, vergleich.validation)
-write.xlsx(vergleich.total, "Y:/AG_Baumgrass/Eric.Urbansky/Good/RDS/VergleichTotal.xlsx")
+write.xlsx(vergleich.total, paste0(path_to_project, "Basal/Prediction_DDPR_PRI_Total.xlsx"))
 
 ##############################################################################
 #auc
@@ -413,7 +480,7 @@ names(result.data)[3] <- "Y Variable"
 names(result.data)[2] <- "x Variable"
 names(result.data)[1] <- "Variable Index"
 
-write.xlsx(result.data, "Y:/AG_Baumgrass/Eric.Urbansky/Good/RDS/Variablen.xlsx")
+write.xlsx(result.data, paste0(path_to_project, "Basal/Prediction_Variables.xlsx"))
 
 ##########################################################################
 
@@ -426,9 +493,9 @@ df.head <- bind_rows(df.head.training, df.head.validation)
 row.names(df.head) <- c(rownames.training, rownames.validation)
 df.head <- bind_cols(as.data.frame(relaps), df.head)
 row.names(df.head) <- c(rownames.training, rownames.validation)
-df.head <- df.head[order(df.head$relaps),]
+df.head <- df.head[order(df.head$relaps), ]
 
-pdf("Y:/AG_Baumgrass/Eric.Urbansky/Good/RDS/Heatmap.pdf", width = 10)
+pdf(paste0(path_to_project, "Basal/Heatmap.pdf"), width = 10)
 heatmap(t(as.matrix(df.head[, -1])), scale = "none", Colv = NA, ColSideColors = relaps[order(relaps)])
 dev.off()
 
