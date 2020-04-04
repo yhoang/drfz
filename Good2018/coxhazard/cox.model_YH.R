@@ -4,7 +4,11 @@
 
 ### ---------- input
 conditional <- FALSE
-path_to_project <- "D:/drfz/Good2018/"
+# find out maximum cluster size with detectCores()
+cluster.size <- 3
+sampling.size <- 100
+set.alpha <- 1
+path.to.project <- "D:/drfz/Good2018/"
 
 
 ### ---------- load R packages
@@ -16,11 +20,11 @@ lapply(librarys, require, character.only = TRUE)
 printf <- function(...) invisible(print(sprintf(...)))
 
 ### ---------- load and clean patient data from excel
-patient_data <- read_excel(paste0(path_to_project, "patient_data.xlsx"))
+patient_data <- read_excel(paste0(path.to.project, "patient_cohort.xlsx"))
 #View(patient_data)
 
 #set columstype from patien data str to numeric values
-#colums with numeric value : Age at Diagnosis, WBC Count, Date of Diagnosis, Time to Relapse(Day), CCR (Day)
+#colums with numeric value : Age at Diagnosis, WBC Count, Date of Diagnosis, Time to Relapse(Days), CCR (Days)
 patient_data$`Time to Relapse (Days)` <- as.numeric(patient_data$`Time to Relapse (Days)`)
 patient_data$`CCR (Days)` <- as.numeric(patient_data$`CCR (Days)`)
 patient_data$`Time to Relapse (Days)`[is.na(patient_data$`Time to Relapse (Days)`)] <- 0
@@ -29,9 +33,9 @@ patient_data$`Age at Diagnosis` <- as.numeric(patient_data$`Age at Diagnosis`)
 patient_data$`WBC Count` <- as.numeric(patient_data$`WBC Count`)
 #patien_data$`Date of Diagnosis` <- as.numeric(patien_data$`Date of Diagnosis`)
 
-#new Collum "Survival Time (Day)
-patient_data$`Survival Time (Day)` <- patient_data$`Time to Relapse (Days)` +  patient_data$`CCR (Days)`
-#fehlermeldung unknown column <- "Survival Time (Day) vorher erstellen?
+#new Collum "Survival Time (Days)
+patient_data$`Survival Time (Days)` <- patient_data$`Time to Relapse (Days)` +  patient_data$`CCR (Days)`
+#fehlermeldung unknown column <- "Survival Time (Days) vorher erstellen?
 
 #yes2 == yes
 patient_data$`Relapse Status`[patient_data$`Relapse Status` == "Yes2"] <- "Yes"
@@ -40,7 +44,7 @@ patient_data$`Relapse Status`[patient_data$`Relapse Status` == "Yes2"] <- "Yes"
 patient_data$`DDPR Risk`[patient_data$`DDPR Risk` == "Low"] <- 0
 patient_data$`DDPR Risk`[patient_data$`DDPR Risk` == "High"] <- 1
 
-#reduce patien data to necessary colums
+#reduce patien data to necessary colums `Patient ID`, `Relapse Status`,`MRD Risk`, `DDPR Risk`, Cohort, `Survival Time (Days)`
 cohort <- patient_data[, c(1, 11, 8, 16, 15, 17)]
 
 #divide cohort into training and validation set
@@ -53,24 +57,17 @@ total.set <- bind_rows(training.set, validation.set)
 ### ---------- load PRI features as RDS
 if (conditional) {
 #absRange Condition 1.1
-df.training <- readRDS(paste0(path_to_project, "Basal/Basal_Training_func_quadrant_absRange_condi1.1_cof0.2.rds"))
-df.validation <- readRDS(paste0(path_to_project, "Basal/Basal_Validation_func_quadrant_absRange_condi1.1_cof0.2.rds"))
+df.training <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Training_func_quadrant_absRange_condi1.1_cof0.2.rds"))
+df.validation <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Validation_func_quadrant_absRange_condi1.1_cof0.2.rds"))
 } else {
 #absRange ohne Condi 1.1
-df.training <- readRDS(paste0(path_to_project, "Basal/Basal_Training_func_quadrant_absRange_cof0.2.rds"))
-df.validation <- readRDS(paste0(path_to_project, "Basal/Basal_Validation_func_quadrant_absRange_cof0.2.rds"))
+df.training <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Training_func_quadrant_absRange_cof0.2.rds"))
+df.validation <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Validation_func_quadrant_absRange_cof0.2.rds"))
 }
 
 #safe rownames ("patien ID")
 rownames.validation <- row.names(df.validation)
 rownames.training <- row.names(df.training)
-
-df.total <- bind_rows(df.training, df.validation)
-
-sample.size <- ncol(df.total)
-
-#View(df.total)
-#total 60 patien in cohort
 
 typeColNum <- 1
 
@@ -81,7 +78,7 @@ condition.train[condition.train %in% c("No")] <- 0
 condition.train <- as.numeric(condition.train)
 
 #survival time in training.set as numeric
-survival.train <- training.set$`Survival Time (Day)`[which(training.set$`Patient ID` %in% row.names(df.training))]
+survival.train <- training.set$`Survival Time (Days)`[which(training.set$`Patient ID` %in% row.names(df.training))]
 
 #ddpr STATUS as numeric
 ddpr.train <- training.set$`DDPR Risk`[which(training.set$`Patient ID` %in% row.names(df.training))]
@@ -91,9 +88,11 @@ ddpr.train <- as.numeric(ddpr.train)
 df.training <- bind_cols(as.data.frame(ddpr.train), df.training)
 names(df.training)[typeColNum] <- "DDPR Status"
 df.training <- bind_cols(as.data.frame(condition.train), df.training)
-names(df.training)[typeColNum] <- "Relaps Status"
+names(df.training)[typeColNum] <- "Relapse Status"
 df.training <- bind_cols(as.data.frame(survival.train), df.training)
-names(df.training)[typeColNum] <- "Survivaltime (Day)"
+names(df.training)[typeColNum] <- "Survivaltime (Days)"
+# glmnet need input matrix for model
+df.training <- as.matrix(df.training)
 
 
 #do same for validation set
@@ -101,31 +100,27 @@ condition.val <- validation.set$`Relapse Status`[which(validation.set$`Patient I
 condition.val[condition.val %in% c("Yes")] <- 1
 condition.val[condition.val %in% c("No")] <- 0
 condition.val <- as.numeric(condition.val)
-survival.val <- validation.set$`Survival Time (Day)`[which(validation.set$`Patient ID` %in% row.names(df.validation))]
+survival.val <- validation.set$`Survival Time (Days)`[which(validation.set$`Patient ID` %in% row.names(df.validation))]
 survival.val <- as.numeric(survival.val)
 ddpr.val <- validation.set$`DDPR Risk`[which(validation.set$`Patient ID` %in% row.names(df.validation))]
 ddpr.val <- as.numeric(ddpr.val)
 
 df.validation <- bind_cols(as.data.frame(ddpr.val), df.validation)
-names(df.validation)[typeColNum] <- "ddpr Status"
-df.validation <- bind_cols(as.data.frame(condition), df.validation)
-names(df.validation)[typeColNum] <- "Relaps Status"
-df.validation <- bind_cols(as.data.frame(survival), df.validation)
-names(df.validation)[typeColNum] <- "Survivaltime (Day)"
-
-df.training.strat <- df.training
-rownames(df.training.strat) <- rownames.training
-
+names(df.validation)[typeColNum] <- "DDPR Status"
+df.validation <- bind_cols(as.data.frame(condition.val), df.validation)
+names(df.validation)[typeColNum] <- "Relapse Status"
+df.validation <- bind_cols(as.data.frame(survival.val), df.validation)
+names(df.validation)[typeColNum] <- "Survivaltime (Days)"
 # glmnet need input matrix for model
-# safe df as matrix
-df.training <- as.matrix(df.training)
 df.validation <- as.matrix(df.validation)
 
-
-### convert NaN/ + -Inf to 0 in df.training
+### ------------ convert NaN/ +-Inf to -0.01 to not to confuse with 0 as PRI feature value
 if (any(is.nan(df.training))) df.training[is.nan(df.training) | is.infinite(df.training)] <- -0.01
 if (any(is.infinite(df.training))) df.training[is.infinite(df.training)] <- -0.01
-### convert NAs to sample group mean
+if (any(is.nan(df.validation))) df.validation[is.nan(df.validation) | is.infinite(df.validation)] <- -0.01
+if (any(is.infinite(df.validation))) df.validation[is.infinite(df.validation)] <- -0.01
+
+### ------------ convert NAs to sample group mean
 if (any(is.na(df.training))) {
   for (i in 2:ncol(df.training)) {
     NA.idx <- which(is.na(df.training[, i]))
@@ -140,10 +135,6 @@ if (any(is.na(df.training))) {
   }
 }
 
-### convert NaN/ + -Inf to 0 in df.validation
-if (any(is.nan(df.validation))) df.validation[is.nan(df.validation) | is.infinite(df.validation)] <- -0.01
-if (any(is.infinite(df.validation))) df.validation[is.infinite(df.validation)] <- -0.01
-### convert NAs to sample group mean
 if (any(is.na(df.validation))) {
   for (i in 2:ncol(df.validation)) {
     NA.idx <- which(is.na(df.validation[, i]))
@@ -158,38 +149,30 @@ if (any(is.na(df.validation))) {
   }
 }
 
-
-#create survival objekt(survival: Surv()) for cox model
-sur_obj_validation <- Surv(df.validation[, 1], df.validation[, 2])
-
-#set seed for reproduction
-seed.vec <- sample(10 ^ 2)
+### initialize and set seed for reproduction
+seed.vec <- sample(sampling.size)
 it.total <- 0
-cluster.size <- 3
 all.activ.Index <- all.coef.value <- vector()
 variabl.count <- vector()
 min.cvm <- 100
 
+# initiate cluster for parallelism
 cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 
+### ------ cross validation
 timeStart <- Sys.time()
-ptm <- proc.time()
 printf("###Start %s.###", timeStart)
 
-while (it.total < 100) {
+while (it.total < sampling.size) {
   it.total <- it.total + 1
-
-
   set.seed(seed.vec[it.total])
 
-  #set folds for cross validation manual because of imbalance data
-  #set folds that 1 fold contains at least 1 relaps
-  # result: 4 folds with 8 patients (at least 2 relaps)
-
+  ### stratify folds for cross validation because of imbalanced data
+  #set folds that 1 fold contains at least 1 relapse
+  # result: 4 folds with 8 patients (at least 2 relapse)
   if (conditional) {
     #fold.id for condition 1.1
-    #create fold values
     null.id <- one.id <- vector()
     fold.id <- rep(0, nrow(df.training))
     one.id <- rep(sample(1:4), 3)
@@ -199,7 +182,6 @@ while (it.total < 100) {
     it.set <- it.null <- it.one <- 1
   } else {
     # #fold.id for no condidion
-    # #create fold values
     null.id <- one.id <- vector()
     fold.id <- rep(0, nrow(df.training))
     one.id <- c(rep(sample(1:4), 3), 3)
@@ -208,7 +190,6 @@ while (it.total < 100) {
     length(one.id)
     it.set <- it.null <- it.one <- 1
   }
-
 
   #create folds
   while (it.set < nrow(df.training) + 1) {
@@ -223,14 +204,14 @@ while (it.total < 100) {
   }
 
   #create Model with cross validation
-  cv.fit <- cv.glmnet(df.training[, - c(1:3)], Surv(df.training[, 1],
+  cv.fit <- cv.glmnet(df.training[, -c(1:3)], Surv(df.training[, 1],
    df.training[, 2]), family = "cox",
-   alpha = 1,
+   alpha = set.alpha,
    foldid = fold.id,
    parallel = TRUE)
   #plot(cv.fit)
 
-  #collect all active (!=0) coef from fited model
+  ### collect all active (>0) coefficients from fited model
   # lambda.min: model with min cross validation error
   Coefficients <- coef(cv.fit, s = cv.fit$lambda.min)
   Active.Index <- which(Coefficients != 0)
@@ -242,7 +223,7 @@ while (it.total < 100) {
 
   #collect best model (model with min cross validation error)
   #safe best model as op.fit
-  #safe active coef
+  #safe active coefficients
   if (min.cvm > tmp) {
     min.cvm <- tmp
     op.fit <- cv.fit
@@ -251,9 +232,7 @@ while (it.total < 100) {
 
   }
   if (it.total %% 10 == 0) {
-    printf("At Work IT:%s ", it.total)
-    print(Sys.time() - timeStart)
-    print(proc.time() - ptm)
+    printf("Run it #%s..", it.total)
   }
 
 }
@@ -264,7 +243,7 @@ stopCluster(cl)
 
 
 print(table(variabl.count))
-printf("Bestes Model mit:%s", op.variabl.count)
+printf("Best model with #features: %s", op.variabl.count)
 
 #prediction for training and validation set based on op.fit
 #prediction for type cox model = relativ risk (RR)
@@ -308,7 +287,7 @@ for (i in 1:length(threshold)) {
 }
 
 #safe ROC plot as pdf
-pdf(paste0(path_to_project, "Basal/HIST-ROC-Plot.pdf"))
+pdf(paste0(path.to.project, "coxhazard/Basal/HIST-ROC-Plot.pdf"))
 par(mfrow = c(2, 2), pty = "s")
 #plot Roc Kurve
 plot(all.fp.rate, all.sens, type = "l", ylab = "Sensitivity", xlab = "False positiv Rate", ylim = c(0, 1), xlim = c(0, 1), main = "ROC Kurv")
@@ -353,50 +332,50 @@ predicted.training <- findInterval(p.training / max(p.training), op.thresh)
 #find error in Prediction.validation for ddpr
 fehler.ddpr <- df.validation[, 2] - df.validation[, 3]
 fehler.ddpr[fehler.ddpr == 1] <- "FN"
-fehler.ddpr[fehler.ddpr == -1] <- "fp"
+fehler.ddpr[fehler.ddpr == -1] <- "FP"
 fehler.ddpr[fehler.ddpr == 0] <- ""
 
 #find error in Prediction model
 fehler.model <- df.validation[, 2] - predicted.validation
 fehler.model[fehler.model == 1] <- "FN"
-fehler.model[fehler.model == -1] <- "fp"
+fehler.model[fehler.model == -1] <- "FP"
 fehler.model[fehler.model == 0] <- ""
 
 #compare Real Status / ddpr Status / Model Status
 vergleich.validation <- data.frame(rownames.validation, df.validation[, 2], df.validation[, 3], fehler.ddpr, predicted.validation, fehler.model)
 names(vergleich.validation)[1] <- "Patien ID"
 names(vergleich.validation)[2] <- "Real Status"
-names(vergleich.validation)[3] <- "ddpr Status"
-names(vergleich.validation)[4] <- "Fehler ddpr"
+names(vergleich.validation)[3] <- "DDPR Status"
+names(vergleich.validation)[4] <- "Fehler DDPR"
 names(vergleich.validation)[5] <- "Predicted Status Model"
-names(vergleich.validation)[6] <- "Fehler Model"
-write.xlsx(vergleich.validation, paste0(path_to_project, "Basal/Prediction_DDPR_PRI_Training.xlsx"))
+names(vergleich.validation)[6] <- "Error Model"
+write.xlsx(vergleich.validation, paste0(path.to.project, "coxhazard/Basal/Prediction_DDPR_PRI_Training.xlsx"))
 
 #find error in Prediction.training for ddpr
 fehler.ddpr <- df.training[, 2] - df.training[, 3]
 fehler.ddpr[fehler.ddpr == 1] <- "FN"
-fehler.ddpr[fehler.ddpr == -1] <- "fp"
+fehler.ddpr[fehler.ddpr == -1] <- "FP"
 fehler.ddpr[fehler.ddpr == 0] <- ""
 
 #find error in prediction model
 fehler.model <- df.training[, 2] - predicted.training
 fehler.model[fehler.model == 1] <- "FN"
-fehler.model[fehler.model == -1] <- "fp"
+fehler.model[fehler.model == -1] <- "FP"
 fehler.model[fehler.model == 0] <- ""
 
 #compare Real Status / ddpr Status / Model Status
 vergleich.training <- data.frame(rownames.training, df.training[, 2], df.training[, 3], fehler.ddpr, predicted.training, fehler.model)
-names(vergleich.training)[1] <- "Patien ID"
+names(vergleich.training)[1] <- "Patient ID"
 names(vergleich.training)[2] <- "Real Status"
-names(vergleich.training)[3] <- "ddpr Status"
-names(vergleich.training)[4] <- "Fehler ddpr"
+names(vergleich.training)[3] <- "DDPR Status"
+names(vergleich.training)[4] <- "Error DDPR"
 names(vergleich.training)[5] <- "Predicted Status Model"
-names(vergleich.training)[6] <- "Fehler Model"
-write.xlsx(vergleich.training, paste0(path_to_project, "Basal/Prediction_DDPR_PRI_Validation.xlsx"))
+names(vergleich.training)[6] <- "Error Model"
+write.xlsx(vergleich.training, paste0(path.to.project, "coxhazard/Basal/Prediction_DDPR_PRI_Validation.xlsx"))
 
 #bind training and validation error
 vergleich.total <- bind_rows(vergleich.training, vergleich.validation)
-write.xlsx(vergleich.total, paste0(path_to_project, "Basal/Prediction_DDPR_PRI_Total.xlsx"))
+write.xlsx(vergleich.total, paste0(path.to.project, "coxhazard/Basal/Prediction_DDPR_PRI_Total.xlsx"))
 
 ##############################################################################
 #auc
@@ -439,20 +418,20 @@ df.head <- bind_rows(df.head.training, df.head.validation)
 row.names(df.head) <- c(rownames.training, rownames.validation)
 
 #Relapsstatus as Vector Red/blue for Heatmap
-relaps <- as.numeric(c(df.training$`Relaps Status`, df.validation$`Relaps Status`))
-relaps[relaps == 1] <- "red"
-relaps[relaps == 0] <- "blue"
+relapse <- as.numeric(c(df.training$`Relapse Status`, df.validation$`Relapse Status`))
+relapse[relapse == 1] <- "red"
+relapse[relapse == 0] <- "blue"
 
 #calculate mean and var for training and validation
-all.relaps <- cohort$`Patient ID`[which(cohort$`Relapse Status` == "Yes")]
+all.relapse <- cohort$`Patient ID`[which(cohort$`Relapse Status` == "Yes")]
 all.relapsfree <- cohort$`Patient ID`[which(cohort$`Relapse Status` == "No")]
-all.mean.range.relaps <- all.var.range.relaps <- all.mean.range.relapsfree <- all.var.range.relapsfree <- vector()
+all.mean.range.relapse <- all.var.range.relapse <- all.mean.range.relapsfree <- all.var.range.relapsfree <- vector()
 
 it <- 0
 for (i in 1:length(names(df.head))) {
   it <- it + 1
-  all.mean.range.relaps <- c(all.mean.range.relaps, mean(df.head[which(row.names(df.head) %in% all.relaps), it]))
-  all.var.range.relaps <- c(all.var.range.relaps, var(df.head[which(row.names(df.head) %in% all.relaps), it]))
+  all.mean.range.relapse <- c(all.mean.range.relapse, mean(df.head[which(row.names(df.head) %in% all.relapse), it]))
+  all.var.range.relapse <- c(all.var.range.relapse, var(df.head[which(row.names(df.head) %in% all.relapse), it]))
   all.mean.range.relapsfree <- c(all.mean.range.relapsfree, mean(df.head[which(row.names(df.head) %in% all.relapsfree), it]))
   all.var.range.relapsfree <- c(all.var.range.relapsfree, var(df.head[which(row.names(df.head) %in% all.relapsfree), it]))
 }
@@ -466,7 +445,7 @@ row.names(new.head) <- c(1:dim(new.head)[1])
 #safe df as excel
 all.right.index <- op.index
 result.data <- data.frame(all.right.index, x, y, z, modus, quat,
-    all.mean.range.relaps, all.var.range.relaps,
+    all.mean.range.relapse, all.var.range.relapse,
     all.mean.range.relapsfree, all.var.range.relapsfree,
     new.head)
 names(result.data)[10] <- "Var(AbsRange) Relapsfree"
@@ -476,11 +455,11 @@ names(result.data)[7] <- "Mean(AbsRange) Relaps"
 names(result.data)[6] <- "Quadrant"
 names(result.data)[5] <- "Modus"
 names(result.data)[4] <- "z Variable"
-names(result.data)[3] <- "Y Variable"
+names(result.data)[3] <- "y Variable"
 names(result.data)[2] <- "x Variable"
 names(result.data)[1] <- "Variable Index"
 
-write.xlsx(result.data, paste0(path_to_project, "Basal/Prediction_Variables.xlsx"))
+write.xlsx(result.data, paste0(path.to.project, "coxhazard/Basal/Prediction_Variables.xlsx"))
 
 ##########################################################################
 
@@ -491,12 +470,12 @@ df.head.training <- df.training[which(colnames(df.training) %in% names(df.traini
 df.head.validation <- df.validation[which(colnames(df.validation) %in% names(df.validation[, - c(1:3)])[op.index])]
 df.head <- bind_rows(df.head.training, df.head.validation)
 row.names(df.head) <- c(rownames.training, rownames.validation)
-df.head <- bind_cols(as.data.frame(relaps), df.head)
+df.head <- bind_cols(as.data.frame(relapse), df.head)
 row.names(df.head) <- c(rownames.training, rownames.validation)
-df.head <- df.head[order(df.head$relaps), ]
+df.head <- df.head[order(df.head$relapse), ]
 
-pdf(paste0(path_to_project, "Basal/Heatmap.pdf"), width = 10)
-heatmap(t(as.matrix(df.head[, -1])), scale = "none", Colv = NA, ColSideColors = relaps[order(relaps)])
+pdf(paste0(path.to.project, "coxhazard/Basal/Heatmap.pdf"), width = 10)
+heatmap(t(as.matrix(df.head[, -1])), scale = "none", Colv = NA, ColSideColors = relapse[order(relapse)])
 dev.off()
 
 ########################################################################
@@ -507,3 +486,4 @@ status <- c(df.training[, 2], df.validation[, 2])
 df.new <- data.frame(time, status, vergleich.total[, 5])
 km.type <- survfit(Surv(df.new[, 1], df.new[, 2]) ~ df.new[, 3], data = df.new, type = "kaplan-meier")
 ggsurvplot(km.type, conf.int = TRUE, legend.labs = c("low Risk", "high Risk"), ggtheme = theme_minimal(), pval = TRUE, pval.method = TRUE)
+)
