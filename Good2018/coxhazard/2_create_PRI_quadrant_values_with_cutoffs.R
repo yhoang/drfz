@@ -7,7 +7,7 @@
 # UPN12/15 low risk
 # UPN10/22 high ristk
 
-rm(list <- ls())
+rm(list = ls())
 options(max.print = 100)
 
 ### ----------- initiate
@@ -49,6 +49,9 @@ load.libraries <- c("RSQLite", "dplyr", "reshape2", "foreach", "doParallel")
 lapply(load.libraries, require, character.only = TRUE)
 ### load functions
 source(file.path(folder.path, "PRI_funs.R"))
+project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
+project.name.long <- c("Basal", "BCR-Crosslink", "IL-7", "Pervanadate", "TSLP")
+stat.info <- c("absRange", "variance", "freq_green", "mean")
 
 ### metatable file
 # cohort_full <- read.csv(sprintf("%spatient_cohort.csv", folder.path))
@@ -57,10 +60,6 @@ sub.set <- read.csv(sprintf("%s/%s_%s_patient_cohort.csv", folder.path, project.
 sub.set$Relapse.Status <- factor(sub.set$Relapse.Status)
 sub.set$Patient.ID <- factor(sub.set$Patient.ID)
 col.vec.func <- as.vector(unlist(read.table(file=paste0(folder.path, "/columns_", coverage, ".txt"))))
-
-project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
-project.name.long <- c("Basal", "BCR-Crosslink", "IL-7", "Pervanadate", "TSLP")
-stat.info <- c("absRange", "variance", "freq_green", "mean")
 
 ### ------ load data from database
 db.name <- "RB_20191002_Good2018.sqlite3"
@@ -117,7 +116,7 @@ len.col <- length(colvec)
 it <- 0
 quad.df <- data.frame(matrix(,
 nrow <- nrow(sub.set),
-ncol <- len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4,
+ncol <- (len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4 + 1),
 #ncol <- 9792, m=18, with ncol <- m * (m - 1) * (m - 2) * 0.5 * 4
 byrow <- TRUE
 ), stringsAsFactors <- FALSE)
