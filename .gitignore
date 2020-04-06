@@ -33,6 +33,7 @@ Good2018/Rdata/Basal/Basal_training_full_df_cof0.2_NRSfull.pdf
 Good2018/Rdata/Basal/Basal_training_full_df_cof0.2_NRSshort.pdf
 Good2018/Rdata/Basal/Basal_Training_full_df_cof0.2.rds
 Good2018/Rdata/Basal/Basal_Training_func_quadrant_absRange_cof0.2.rds
+Good2018/Rdata/Basal/Basal_Total_func_quadrant_absRange_cof0.2.rds
 Good2018/Rdata/Basal/Basal_Validation_full_df_cof0.2_barplot.pdf
 Good2018/Rdata/Basal/Basal_Validation_full_df_cof0.2_density.pdf
 Good2018/Rdata/Basal/Basal_Validation_full_df_cof0.2_man.rds
@@ -177,3 +178,11 @@ Good2018/paper/NIHMS964729-supplement-1.pdf
 Good2018/paper/nihms964729.pdf
 Good2018/paper/nm.4505-S3.csv
 Good2018/paper/patient_data.pdf
+Good2018/Rdata/Basal/Basal_Total_func_quadrant_absRange_cof0.2.rds
+Good2018/coxhazard/Basal/Heatmap.pdf
+Good2018/coxhazard/Basal/HIST-ROC-Plot.pdf
+Good2018/coxhazard/Basal/kaplan-meier.pdf
+Good2018/coxhazard/Basal/Prediction_DDPR_PRI_Total.xlsx
+Good2018/coxhazard/Basal/Prediction_DDPR_PRI_Training.xlsx
+Good2018/coxhazard/Basal/Prediction_DDPR_PRI_Validation.xlsx
+Good2018/coxhazard/Basal/Prediction_Variables.xlsx
