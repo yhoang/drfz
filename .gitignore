@@ -186,3 +186,7 @@ Good2018/coxhazard/Basal/Prediction_DDPR_PRI_Total.xlsx
 Good2018/coxhazard/Basal/Prediction_DDPR_PRI_Training.xlsx
 Good2018/coxhazard/Basal/Prediction_DDPR_PRI_Validation.xlsx
 Good2018/coxhazard/Basal/Prediction_Variables.xlsx
+Good2018/Rdata/BCR/BCR_Training_full_quadrant_absRange_cof0.2.rds
+Good2018/Rdata/BCR/BCR_Validation_full_quadrant_absRange_cof0.2.rds
+.vscode/vscode-R/response.log
+.vscode/vscode-R/21912/globalenv.json

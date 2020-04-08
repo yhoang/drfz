@@ -3,12 +3,19 @@
 # Transfer from 20200302
 
 ### ---------- input
+# conditional   TRUE/FALSE, if apply Ria's conditions
+# project.id    1:5, for Basal, BCR, IL7, Pervanadate, TSLP
+# set.alpha     0:1, set alpha which was found to have lowest error rate, see find_alpha.R
+# sampling.size 1:10000, number of CV iterations
+# cluster.size  1:12, find out maximum cluster size with detectCores()
+
 conditional <- FALSE
-# find out maximum cluster size with detectCores()
-cluster.size <- 3
-sampling.size <- 100
+project.id  <- 2
 set.alpha <- 1
+sampling.size <- 100
+cluster.size <- 3
 path.to.project <- "D:/drfz/Good2018/"
+
 
 
 ### ---------- load R packages
@@ -16,8 +23,10 @@ librarys <- c("survival", "glmnet", "readxl", "dplyr", "doParallel", "xlsx", "su
 #install.packages(librarys, lib = "C:/Program Files/R/R-3.6.1/library")
 lapply(librarys, require, character.only = TRUE)
 
-#a usefull print function
+#a useful print function
 printf <- function(...) invisible(print(sprintf(...)))
+
+project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 
 ### ---------- load and clean patient data from excel
 patient_data <- read_excel(paste0(path.to.project, "patient_cohort.xlsx"))
@@ -31,7 +40,7 @@ patient_data$`Time to Relapse (Days)`[is.na(patient_data$`Time to Relapse (Days)
 patient_data$`CCR (Days)`[is.na(patient_data$`CCR (Days)`)] <- 0
 patient_data$`Age at Diagnosis` <- as.numeric(patient_data$`Age at Diagnosis`)
 patient_data$`WBC Count` <- as.numeric(patient_data$`WBC Count`)
-#patien_data$`Date of Diagnosis` <- as.numeric(patien_data$`Date of Diagnosis`)
+# patient_data$`Date of Diagnosis` <- as.numeric(patient_data$`Date of Diagnosis`)
 
 #new Collum "Survival Time (Days)
 patient_data$`Survival Time (Days)` <- patient_data$`Time to Relapse (Days)` +  patient_data$`CCR (Days)`
@@ -57,12 +66,12 @@ total.set <- bind_rows(training.set, validation.set)
 ### ---------- load PRI features as RDS
 if (conditional) {
 #absRange Condition 1.1
-df.training <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Training_func_quadrant_absRange_condi1.1_cof0.2.rds"))
-df.validation <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Validation_func_quadrant_absRange_condi1.1_cof0.2.rds"))
+df.training <- readRDS(paste0(path.to.project, "Rdata/", project.name[project.id], "/", project.name[project.id], "_Training_func_quadrant_absRange_condi1.1_cof0.2.rds"))
+df.validation <- readRDS(paste0(path.to.project, "Rdata", project.name[project.id], "/", project.name[project.id], "_Validation_func_quadrant_absRange_condi1.1_cof0.2.rds"))
 } else {
 #absRange ohne Condi 1.1
-df.training <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Training_func_quadrant_absRange_cof0.2.rds"))
-df.validation <- readRDS(paste0(path.to.project, "Rdata/Basal/Basal_Validation_func_quadrant_absRange_cof0.2.rds"))
+df.training <- readRDS(paste0(path.to.project, "Rdata", project.name[project.id], "/", project.name[project.id], "_Training_func_quadrant_absRange_cof0.2.rds"))
+df.validation <- readRDS(paste0(path.to.project, "Rdata", project.name[project.id], "/", project.name[project.id], "_Validation_func_quadrant_absRange_cof0.2.rds"))
 }
 
 #safe rownames ("patien ID")
@@ -287,7 +296,7 @@ for (i in 1:length(threshold)) {
 }
 
 #safe ROC plot as pdf
-pdf(paste0(path.to.project, "coxhazard/Basal/HIST-ROC-Plot.pdf"))
+pdf(paste0(path.to.project, "coxhazard/", project.name[project.id], "/HIST-ROC-Plot.pdf"))
 par(mfrow = c(2, 2), pty = "s")
 #plot Roc Kurve
 plot(all.fp.rate, all.sens, type = "l", ylab = "Sensitivity", xlab = "False positiv Rate", ylim = c(0, 1), xlim = c(0, 1), main = "ROC Kurv")
@@ -349,7 +358,7 @@ names(vergleich.validation)[3] <- "DDPR Status"
 names(vergleich.validation)[4] <- "Fehler DDPR"
 names(vergleich.validation)[5] <- "Predicted Status Model"
 names(vergleich.validation)[6] <- "Error Model"
-write.xlsx(vergleich.validation, paste0(path.to.project, "coxhazard/Basal/Prediction_DDPR_PRI_Training.xlsx"))
+write.xlsx(vergleich.validation, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Training.xlsx"))
 
 #find error in Prediction.training for ddpr
 fehler.ddpr <- df.training[, 2] - df.training[, 3]
@@ -371,11 +380,11 @@ names(vergleich.training)[3] <- "DDPR Status"
 names(vergleich.training)[4] <- "Error DDPR"
 names(vergleich.training)[5] <- "Predicted Status Model"
 names(vergleich.training)[6] <- "Error Model"
-write.xlsx(vergleich.training, paste0(path.to.project, "coxhazard/Basal/Prediction_DDPR_PRI_Validation.xlsx"))
+write.xlsx(vergleich.training, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Validation.xlsx"))
 
 #bind training and validation error
 vergleich.total <- bind_rows(vergleich.training, vergleich.validation)
-write.xlsx(vergleich.total, paste0(path.to.project, "coxhazard/Basal/Prediction_DDPR_PRI_Total.xlsx"))
+write.xlsx(vergleich.total, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Total.xlsx"))
 
 ##############################################################################
 #auc
@@ -459,7 +468,7 @@ names(result.data)[3] <- "y Variable"
 names(result.data)[2] <- "x Variable"
 names(result.data)[1] <- "Variable Index"
 
-write.xlsx(result.data, paste0(path.to.project, "coxhazard/Basal/Prediction_Variables.xlsx"))
+write.xlsx(result.data, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_Variables.xlsx"))
 
 ##########################################################################
 
@@ -474,7 +483,7 @@ df.head <- bind_cols(as.data.frame(relapse), df.head)
 row.names(df.head) <- c(rownames.training, rownames.validation)
 df.head <- df.head[order(df.head$relapse), ]
 
-pdf(paste0(path.to.project, "coxhazard/Basal/Heatmap.pdf"), width = 10)
+pdf(paste0(path.to.project, "coxhazard/", project.name[project.id], "/Heatmap.pdf"), width = 10)
 heatmap(t(as.matrix(df.head[, -1])), scale = "none", Colv = NA, ColSideColors = relapse[order(relapse)])
 dev.off()
 

@@ -5,7 +5,7 @@
 
 ### Basal representatives
 # UPN12/15 low risk
-# UPN10/22 high ristk
+# UPN10/22 high risk
 
 rm(list = ls())
 options(max.print = 100)
@@ -18,15 +18,15 @@ options(max.print = 100)
 # trimming      TRUE, FALSE [so far FALSE]
 # project.id    1:5 for Basal, BCR, IL7, Pervanadate, TSLP
 # subgroup      Validation, Training
-# coverage      full, func, func-up1, func-up2 [func=18, func-up1=21, func-up2=24]
+# coverage      full, func, funcplus3, func-plus6 [func=18, func-up1=21, func-up2=24]
 cofactor <- 0.2
 mincells <- 5
 stat.id <- 1
-cluster.size <- 3
-project.id <- 2
+cluster.size <- 1
+project.id <- 1
 
-subgroup <- "Training"
-# subgroup <- "Validation"
+# subgroup <- "Training"
+subgroup <- "Validation"
 coverage <- "full"
 ### set paths
 folder.path <- file.path("D:", "drfz", "Good2018")
@@ -45,7 +45,7 @@ setwd(folder.path)
 # foreach     :  allows for each loops
 # doParallel   :  use several clusters for parallele calculations
 load.libraries <- c("RSQLite", "dplyr", "reshape2", "foreach", "doParallel")
-#install.packages(libraries, lib = "C:/Program Files/R/R - 3.6.1/library")
+#install.packages(libraries, lib = "C:/Program Files/R/R-3.6.1/library")
 lapply(load.libraries, require, character.only = TRUE)
 ### load functions
 source(file.path(folder.path, "PRI_funs.R"))
@@ -116,7 +116,7 @@ len.col <- length(colvec)
 it <- 0
 quad.df <- data.frame(matrix(,
 nrow <- nrow(sub.set),
-ncol <- (len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4 + 1),
+ncol <- (len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4 - 1),
 #ncol <- 9792, m=18, with ncol <- m * (m - 1) * (m - 2) * 0.5 * 4
 byrow <- TRUE
 ), stringsAsFactors <- FALSE)
@@ -126,6 +126,8 @@ registerDoParallel(cl)
 
 ptm <- proc.time()
 quad.sample_id <- vector()
+fileConn <- sprintf("2_create_PRI_quadrant_%s_%s.log", project.name[project.id], subgroup)
+
 for (i in 1:nrow(sub.set)) {
 # for (i in 1:1) {
     quad.sample_id <- c(quad.sample_id, as.character(sub.set$Patient.ID[i]))
@@ -144,73 +146,80 @@ for (i in 1:nrow(sub.set)) {
     quad.file <- vector()
     for (v1 in 1:(len.col - 1)) {
     # for (v1 in 1:1) {
-    it <- it + 1
+        it <- it + 1
 
-    quad.oper <- foreach(v2=(v1 + 1):len.col, .combine=cbind) %dopar% {
-    #   quad.oper <- foreach(v2=11:14, .combine=cbind) %dopar% {
-    quadrant.vec <- vector()
+        quad.oper <- foreach(v2=(v1 + 1):len.col, .combine=cbind) %dopar% {
+            #   quad.oper <- foreach(v2=11:14, .combine=cbind) %dopar% {
+            quadrant.vec <- vector()
 
-    for (v3 in 1:len.col) {
-    #    for (v3 in 13:13) {
-        if (all(v3 != c(v1, v2))) {
-        sampl.data <- temp.data.all[which(temp.data.all$file_id == as.vector(sub.set$Patient.ID[i])), c(colvec[v1], colvec[v2], colvec[v3])]
-        ### NEW::ONLY rows where used if v1 or v2 are >0
-        # sampl.data <- sampl.data[which(sampl.data[,1]>=0 & sampl.data[,2]>=0),]
+            for (v3 in 1:len.col) {
+            #    for (v3 in 13:13) {
+                if (all(v3 != c(v1, v2))) {
+                sampl.data <- temp.data.all[which(temp.data.all$file_id == as.vector(sub.set$Patient.ID[i])), c(colvec[v1], colvec[v2], colvec[v3])]
+                ### NEW::ONLY rows where used if v1 or v2 are >0
+                # sampl.data <- sampl.data[which(sampl.data[,1]>=0 & sampl.data[,2]>=0),]
 
-        ### --------- calculate triplot quadrants
-        quad.results <- fcs$calc_triplot_quadrant(temp.data = sampl.data,
-                            calc.meth = stat.info[stat.id],
-                            min.cells = mincells,
-                            prod.cutoff = cutoffs[c(v1, v2)])
-        quadrant.vec <- c(quadrant.vec, quad.results)
+                ### --------- calculate triplot quadrants
+                quad.results <- fcs$calc_triplot_quadrant(temp.data = sampl.data,
+                                    calc.meth = stat.info[stat.id],
+                                    min.cells = mincells,
+                                    prod.cutoff = cutoffs[c(v1, v2)])
+                quadrant.vec <- c(quadrant.vec, quad.results)
+                }
+            }
+
+            return(quadrant.vec)
         }
+
+        quad.file <- c(quad.file, as.vector(quad.oper))
+
+        ### ------ create label vector in the last step
+        if (i == nrow(sub.set)) {
+            label.file <- vector()
+            for (v1 in 1:(len.col - 1)) {
+            # for (v1 in 1:1) {
+
+                label.oper <- foreach(v2=(v1 + 1):len.col, .combine=cbind) %dopar% {
+                # label.oper <- foreach (v2=11:14,.combine=cbind) %dopar% {
+                    label.vec <- vector()
+
+                    for (v3 in 1:len.col) {
+                    # for (v3 in 13:13) {
+                        if (all(v3 != c(v1, v2))) {
+
+                            if (stat.info[stat.id] == "zRange") {
+                                label.vec <- c(label.vec, paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3]))
+                            } else {
+                                label.vec <- c(label.vec,
+                                    paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q1"),
+                                    paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q2"),
+                                    paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q3"),
+                                    paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q4")
+                                    )
+                            }
+                        }
+                    }
+                    return(label.vec)
+                }
+                label.file <- c(label.file, as.vector(label.oper))
+            }
+        }
+
+        printf("%s::%s::%s::%s::%s::v1=%s[%s/%s] ready (it=%s)", i, sub.set$Patient.ID[i], project.name[project.id], subgroup, stat.info[stat.id], colvec[v1], v1, len.col, it)
+    
+        print(proc.time() - ptm)
     }
+    quad.df[i, ] <- quad.file
 
-    return(quadrant.vec)
-    }
-
-    quad.file <- c(quad.file, as.vector(quad.oper))
-
-    ### ------ create label vector in the last step
-    if (i == nrow(sub.set)) {
-    label.file <- vector()
-    for (v1 in 1:(len.col - 1)) {
-    # for (v1 in 1:1) {
-
-        label.oper <- foreach(v2=(v1 + 1):len.col, .combine=cbind) %dopar% {
-        # label.oper <- foreach (v2=11:14,.combine=cbind) %dopar% {
-        label.vec <- vector()
-
-        for (v3 in 1:len.col) {
-        # for (v3 in 13:13) {
-        if (all(v3 != c(v1, v2))) {
-
-        if (stat.info[stat.id] == "zRange") {
-            label.vec <- c(label.vec, paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3]))
-        } else {
-            label.vec <- c(label.vec,
-                paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q1"),
-                paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q2"),
-                paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q3"),
-                paste0(colvec[v1], ".", colvec[v2], ".", colvec[v3], ".", stat.info[stat.id ], ".", "Q4")
-            )
-        }
-        }
-        }
-
-        return(label.vec)
-        }
-        label.file <- c(label.file, as.vector(label.oper))
-    }
-    }
-
-    printf("%s::%s::%s::%s::v1=%s[%s/%s] ready (it=%s)", i, sub.set$Patient.ID[i], subgroup, stat.info[stat.id], colvec[v1], v1, len.col, it)
+    printf("File %s ready (it=%s)", i, it)
     print(proc.time() - ptm)
-    }
- quad.df[i, ] <- quad.file
 
- printf("File %s ready (it=%s)", i, it)
- print(proc.time() - ptm)
+    sink(fileConn, append = TRUE)
+    cat(paste0(date(), "\n"), append = TRUE)
+    cat(sprintf("project=%s subgroup=%s coverage=%s cluster=%s \n", project.name[project.id], subgroup, coverage, cluster.size), append = TRUE)
+    cat(paste0(proc.time() - ptm, collapse = " "), append = TRUE)
+    cat("\n", append = TRUE)
+    sink()
 }
 print("Total time:")
 print(proc.time() - ptm)
@@ -223,7 +232,4 @@ stopCluster(cl)
 
 saveRDS(quad.df, file=quad.table.name)
 printf("%s saved!", quad.table.name)
-
-
-
 
