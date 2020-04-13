@@ -1,0 +1,61 @@
+Patient ID,Gender,Age at Diagnosis,WBC Count,Prognostic Translocations,Treatment Protocol,Final Risk,MRD Risk,NCI/Rome Risk,Date of Diagnosis,Relapse Status,Time to Relapse (Days),Type of Relapse,CCR (Days),Cohort,DDPR Risk
+UPN1,Male,2,44100,Negative,AIEOP2000,Intermediate,Intermediate,Standard,10.23.00,Yes2,1043,Early,NA,Training,Low
+UPN2,Male,2,36650,t(1;19),AIEOP2000,Intermediate,Intermediate,Standard,7.31.01,No,NA,NA,5406,Training,Low
+UPN3,Female,1,49250,Negative,AIEOP2000,Standard,Standard,Standard,12.02.02,No,NA,NA,4917,Training,Low
+UPN4,Male,2,33000,t(12;21),AIEOP2000,Standard,Standard,Standard,12.16.03,No,NA,NA,4538,Validation,Low
+UPN5,Female,2,150000,Negative,AIEOP2000,Standard,Standard,High,02.02.04,No,NA,NA,4490,Validation,High
+UPN6,Female,5,113000,t(12;21),AIEOP2000,Intermediate,Intermediate,High,10.29.04,No,NA,NA,4220,Training,Low
+UPN7,Male,14,230000,t(9;22),AIEOP2000,High,Intermediate,High,02.25.05,Yes,136,Very early,NA,Training,High
+UPN8,Female,3,120000,t(12;21),AIEOP2000,Intermediate,Intermediate,High,04.01.05,Yes,364,Very early,NA,Training,High
+UPN9,Male,5,88670,Negative,AIEOP2000,High,High,High,05.19.05,Yes,237,Very early,NA,Training,High
+UPN10,Female,5,23520,t(12;21),AIEOP2000,Intermediate,Intermediate,Standard,02.20.06,Yes2,886,Early,NA,Training,High
+UPN11,Female,15,14100,t(12;21),AIEOP2000,Intermediate,Intermediate,High,04.06.06,No,NA,NA,3696,Training,Low
+UPN12,Male,6,48820,Negative,AIEOP2000,Standard,Standard,Standard,08.16.06,No,NA,NA,3564,Training,Low
+UPN13,Female,2,21270,t(1;19),AIEOP2000,Standard,Standard,Standard,09.04.06,No,NA,NA,3545,Training,Low
+UPN14,Male,2,53580,t(12;21),AIEOP2000,Intermediate,Intermediate,High,11.21.06,Yes,2848,Late,NA,Validation,High
+UPN15,Male,4,44730,t(12;21),AIEOP2000,Intermediate,Intermediate,Standard,11.29.06,No,NA,NA,3459,Training,Low
+UPN16,Male,12,11500,Negative,AIEOP2000,Intermediate,Intermediate,High,01.21.06,No,NA,NA,3771,Training,Low
+UPN17,Male,8,35830,Negative,AIEOP2000,Standard,Intermediate,Standard,09.06.07,No,NA,NA,3178,Training,High
+UPN18,Male,5,2490,t(12;21),AIEOP2000,Intermediate,Intermediate,Standard,04.09.08,No,NA,NA,2962,Training,Low
+UPN19,Female,3,20300,Negative,AIEOP2000,Standard,Standard,Standard,04.18.08,No,NA,NA,2953,Training,High
+UPN20,Male,3,34200,Negative,AIEOP2000,Intermediate,Standard,Standard,05.30.08,No,NA,NA,2911,Validation,Low
+UPN21,Male,2,116000,t(12;21),AIEOP2000,Standard,Intermediate,High,06.09.08,Yes,1907,Late,NA,Training,High
+UPN22,Male,6,6220,Negative,AIEOP2000,Intermediate,Intermediate,Standard,08.07.08,Yes2,1552,Late,NA,Training,High
+UPN23,Female,2,21700,Negative,AIEOP2000,Intermediate,Standard,Standard,05.22.08,No,NA,NA,2919,Training,Low
+UPN24,Female,3,30680,Negative,AIEOP2000,Intermediate,Intermediate,Standard,12.11.08,No,NA,NA,2716,Training,Low
+UPN25,Female,15,257000,Negative,AIEOP2000,Intermediate,Intermediate,High,12.17.08,Yes,698,Early,NA,Training,High
+UPN26,Male,13,29200,Negative,AIEOP2000,Intermediate,Intermediate,High,01.15.09,Yes,699,Early,NA,Training,High
+UPN27,Male,2,27970,Negative,AIEOP2000,Standard,Intermediate,Standard,06.08.09,No,NA,NA,2537,Training,Low
+UPN28,Female,4,36700,t(1;19),AIEOP2000,Intermediate,Standard,Standard,10.19.09,No,NA,NA,2404,Training,Low
+UPN29,Male,10,11610,Negative,AIEOP2000,Intermediate,Intermediate,High,01.18.10,No,NA,NA,2313,Training,Low
+UPN30,Male,10,21750,Negative,AIEOP2000,Intermediate,Intermediate,High,05.25.10,No,NA,NA,2186,Validation,Low
+UPN31,Female,3,10100,t(1;19),AIEOP2000,Standard,Standard,Standard,09.11.10,No,NA,NA,2077,Training,Low
+UPN35,Male,13,41800,Negative,AIEOP2000,Intermediate,Intermediate,High,11.08.10,Yes2,624,Early,NA,Training,Low
+UPN45,Female,6,59910,Negative,AIEOP2000,Intermediate,Intermediate,High,09.08.06,Yes2,700,Early,NA,Validation,High
+UPN47,Male,15,1870,CRLF2r,AIEOP2009,High,High,High,12.05.11,Yes,395,Very early,NA,Training,High
+UPN48,Male,12,193750,CRLF2r,AIEOP2009,Intermediate,Intermediate,High,10.18.10,No,NA,NA,2229,Training,Low
+UPN49,Female,4,15910,CRLF2r,AIEOP2009,High,Intermediate,Standard,11.21.13,No,NA,NA,1099,Training,Low
+UPN50,Female,17,5800,CRLF2r,AIEOP2009,Standard,Standard,High,01.13.13,No,NA,NA,1411,Training,Low
+UPN51,Male,2,23940,CRLF2r,AIEOP2009,Standard,Standard,Standard,07.05.12,No,NA,NA,1603,Validation,Low
+UPN52,Female,12,53640,CRLF2r,AIEOP2009,High,Intermediate,High,08.23.12,No,NA,NA,1554,Training,High
+UPN53,Female,6,4200,t(12;21),AIEOP2009,Intermediate,Intermediate,Standard,08.03.11,No,NA,NA,1940,Training,Low
+UPN54,Male,4,12650,t(12;21),AIEOP2009,High,High,Standard,02.29.12,No,NA,NA,1730,Training,Low
+UPN55,Female,4,25030,Negative,AIEOP2009,High,High,Standard,03.15.12,No,NA,NA,1715,Training,Low
+UPN56,Female,4,34800,Negative,AIEOP2009,Intermediate,Intermediate,Standard,06.05.12,Yes,938,Early,NA,Training,High
+UPN57,Female,2,21950,Negative,AIEOP2009,Intermediate,Intermediate,Standard,05.29.12,No,NA,NA,1640,Validation,Low
+UPN58,Female,16,6110,Negative,AIEOP2009,Intermediate,Intermediate,High,03.26.13,No,NA,NA,1339,Training,Low
+UPN60,Female,1,34580,t(12;21),AIEOP2009,Intermediate,Intermediate,Standard,06.17.13,NA,NA,NA,NA,NA,NA
+UPN62,Male,1,20200,Negative,AIEOP2009,Intermediate,Intermediate,Standard,04.02.14,NA,NA,NA,NA,NA,NA
+UPN63,Male,2,18130,t(12;21),AIEOP2009,Intermediate,Intermediate,Standard,07.10.14,NA,NA,NA,NA,NA,NA
+UPN67,Male,17,166370,CRLF2r,AIEOP2009,High,High,High,02.19.15,NA,NA,NA,NA,NA,NA
+UPN68,Female,4,1660,CRLF2r,AIEOP2009,Intermediate,Intermediate,Standard,10.10.14,NA,NA,NA,NA,NA,NA
+UPN69,Male,4,5890,CRLF2r,AIEOP2009,High,Intermediate,Standard,05.06.15,NA,NA,NA,NA,NA,NA
+UPN90,Male,7,NA,t(9;22),AALL0031,NA,NA,NA,10.01.04,Yes2,1400,Late,NA,Training,Low
+UPN91,Male,18,250000,t(9;22),AALL622,NA,NA,High,04.06.08,No,NA,NA,2991,Training,Low
+UPN92,Male,4,49800,t(9;22),AALL0031,NA,NA,Standard,04.01.08,No,NA,NA,3163,Training,Low
+UPN93,Female,14,45000,t(9;22),AALL1131,NA,NA,High,03.26.14,No,NA,NA,1073,Training,Low
+UPN94,Male,8,143000,t(9;22),AALL1131,NA,NA,High,04.11.14,Yes,725,Early,NA,Validation,High
+UPN95,Male,15,4,t(9;22),AALL0622,NA,NA,High,04.27.09,Yes2,1680,Late,NA,Validation,High
+UPN96,Female,9,106000,t(9;22),AALL0031,NA,NA,High,11.01.06,No,NA,NA,3521,Training,High
+UPN97,Female,4,11000,t(9;22),AALL1131,NA,NA,Standard,12.06.12,No,NA,NA,1336,Training,Low
+UPN98,Male,15,100000,t(9;22),AALL0622,NA,NA,High,03.23.09,No,NA,NA,2790,Training,Low

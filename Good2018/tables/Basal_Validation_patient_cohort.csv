@@ -1,0 +1,11 @@
+"","Patient.ID","Relapse.Status","MRD.Risk","DDPR.Risk","Cohort","Time.to.Relapse..Days.","CCR..Days."
+"4","UPN4","No","Standard","Low","Validation",NA,4538
+"5","UPN5","No","Standard","High","Validation",NA,4490
+"14","UPN14","Yes","Intermediate","High","Validation",2848,NA
+"20","UPN20","No","Standard","Low","Validation",NA,2911
+"30","UPN30","No","Intermediate","Low","Validation",NA,2186
+"33","UPN45","Yes2","Intermediate","High","Validation",700,NA
+"38","UPN51","No","Standard","Low","Validation",NA,1603
+"44","UPN57","No","Intermediate","Low","Validation",NA,1640
+"56","UPN94","Yes",NA,"High","Validation",725,NA
+"57","UPN95","Yes2",NA,"High","Validation",1680,NA

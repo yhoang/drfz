@@ -211,9 +211,13 @@ while (it.total < sampling.size) {
     }
     it.set <- it.set + 1
   }
+    
+  # columns sampling
+  tmp <- df.training[, - c(1:3)]
+  tmp <- tmp[, sample(length(tmp))]
 
   #create Model with cross validation
-  cv.fit <- cv.glmnet(df.training[, -c(1:3)], Surv(df.training[, 1],
+  cv.fit <- cv.glmnet(tmp, Surv(df.training[, 1],
    df.training[, 2]), family = "cox",
    alpha = set.alpha,
    foldid = fold.id,

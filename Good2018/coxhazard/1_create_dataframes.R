@@ -1,6 +1,6 @@
 #!/usr/bin/R
 # author: Yen Hoang
-# DRFZ 2019
+# DRFZ 2019-2020
 # Goood2018
 
 ### Basal representatives
@@ -8,24 +8,18 @@
 # UPN10/22 high ristk
 
 rm(list = ls())
-
-
+options(max.print = 100)
 
 # initiate ------------------------------------------------
 # cofactor      1, 0.2, 0.1 [so far at 0.2]
 # trimming      TRUE, FALSE [so far FALSE]
-# project.name    Basal, BCR, IL7, Pervanadate, TSLP
-# project.name.long  Basal, BCR-Crosslink, IL-7, Pervanadate, TSLP 
-# subgroup      Validation, Training
-# coverage      full, func [so far func(tional)]
-
+# project.id    1:5 for Basal, BCR, IL7, Pervanadate, TSLP
+# subgroup      "Validation", "Training"
 cofactor <- 0.2
 trimming <- FALSE
-project.name <- "Basal"
-project.name.long <- "Basal"
+project.id <- 5
 subgroup <- "Validation"
 # subgroup <- "Training"
-coverage <- "full"
 
 create.df <- TRUE
 create.QCplots <- FALSE
@@ -52,6 +46,8 @@ lapply(libraries, require, character.only = TRUE)
 source(file.path(folder.path, "PRI_funs.R"))
 
 
+project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
+project.name.long <- c("Basal", "BCR-Crosslink", "IL-7", "Pervanadate", "TSLP")
 
 # load data base -----------------------------------------
 db.name <- "RB_20191002_Good2018.sqlite3"
@@ -61,52 +57,53 @@ print(head(dbListTables(fcs$conn)))
 
 
 ### metatable file
-cohort_full <- read.csv(sprintf("%s/patient_cohort.csv", folder.path))
+cohort_full <- read.csv(sprintf("%s/tables/patient_cohort.csv", folder.path))
 # "Patient ID"      "Relapse Status"    "MRD Risk"
 # "DDPR Risk" "Cohort" "Survival Time (Days)"
 cohort <- cohort_full[, c(1, 11, 8, 16, 15, 12, 14)]
-sub.set <- cohort[which(cohort$Cohort == subgroup), 1:5]
+sub.set <- cohort[which(cohort$Cohort == subgroup), ]
 
 
 
 ### select project
-project.idx <- which(dbListTables(fcs$conn) == project.name)
-fileID <- fcs$getDFtable(paste0(project.name, "_fileIdentity"))
-stainID <- fcs$getDFtable(paste0(project.name, "_markerIdentity"))
+project.idx <- which(dbListTables(fcs$conn) == project.name[project.id])
+fileID <- fcs$getDFtable(paste0(project.name[project.id], "_fileIdentity"))
+stainID <- fcs$getDFtable(paste0(project.name[project.id], "_markerIdentity"))
 ### and according file name
-data.table.name <- sprintf("%s/Rdata/%s_%s_%s_df_cof%s", folder.path, project.name, subgroup, coverage, cofactor)
-patient.not.found.name <- sprintf("%s/%s_%s_patientNOTFOUND.txt", folder.path, project.name, subgroup)
-new.sub.set.name <- sprintf("%s/%s_%s_patient_cohort.csv", folder.path, project.name, subgroup)
+data.table.name <- sprintf("%s/Rdata/%s/%s_%s_df_cof%s", folder.path, project.name[project.id], project.name[project.id], subgroup, cofactor)
+patient.not.found.name <- sprintf("%s/tables/%s_%s_patientNOTFOUND.txt", folder.path, project.name[project.id], subgroup)
+new.sub.set.name <- sprintf("%s/tables/%s_%s_patient_cohort.csv", folder.path, project.name[project.id], subgroup)
 
 # go through training set and load single files and merge into one temp.data.all -----------------
 ### activate to create the two table structures
 if (create.df) {
-  printf("Create dataframe from %s::%s....", subgroup, project.name)
+  printf("Create dataframe from %s::%s....", subgroup, project.name[project.id])
   label.name <- vector()
-  ncells.trimmed.total <- 0
+  ncells.trimmed.total <- no.pat.it <- 0
   temp.data.all <- data.man.all <- data.frame()
   pat.not.found <- new.sub.set.id <- vector()
   for (i in 1:nrow(sub.set)) {
     pat.id <- sub.set[i, 1]
-    file.name <- paste0(pat.id, "_", project.name.long, ".fcs")
-    printf("Looking for file %s..", file.name)
+    file.name <- paste0(pat.id, "_", project.name.long[project.id], ".fcs")
+    printf("%s/%s::Looking for file %s..", i, nrow(sub.set), file.name)
     file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
     if (length(file.idx) == 0) {
       # file names may vary..
-      file.name <- paste0(pat.id, "_", tolower(project.name.long), ".fcs") 
+      file.name <- paste0(pat.id, "_", tolower(project.name.long[project.id]), ".fcs") 
       file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
     }
     
     ### if still not found, collect the patient IDs and write them out.
-    if (length(file.idx) == 0) {
+      if (length(file.idx) == 0) {
+      no.pat.it <- no.pat.it + 1
       pat.not.found <- c(pat.not.found, as.vector(pat.id))
-      printf("Could not find patient %s", file.name)
+      printf("%s::Could not find patient %s", no.pat.it, file.name)
       next
     }
 
     new.sub.set.id <- c(new.sub.set.id, as.vector(pat.id))
     ### get data with cofactor
-    temp.data <- fcs$getData(table = project.name, fileidx = file.idx, cofactor=cofactor)
+    temp.data <- fcs$getData(table = project.name[project.id], fileidx = file.idx, cofactor=cofactor)
     
     ### set negative expressions to zero
     temp.data[temp.data < 0] <- 0
@@ -159,41 +156,49 @@ if (create.df) {
       # print(dim(temp.data.all))
     }
   }
- printf("Total cells trimmed: %s", ncells.trimmed.total)
- print("Done loading and manipulating data for Day3.")
- print(dim(temp.data.all))
- # BCR Validation: 470928   40
- # BCR Training: 1943896   40
-# saveRDS(temp.data.all, file <- paste0(data.table.name, ".rds"))
- printf("Saved temp.data.all in %s", paste0(data.table.name, ".rds"))
- 
- print(dim(data.man.all))
- # BCR Validation: 18366192    4
- # BCR Training: 75811944    4
-#  saveRDS(data.man.all, file <- paste0(data.table.name, "_man.rds"))
- printf("Saved data.man.all in %s", paste0(data.table.name, "_man.rds"))
- 
- ### patient ID not found
- write.csv(paste(subgroup, paste(pat.not.found)), patient.not.found.name)
- 
- ### save existing patient IDs in separate file name
- new.sub.set <- sub.set[which(sub.set$Patient.ID %in% new.sub.set.id), ]
- write.csv(new.sub.set, new.sub.set.name)
- sub.set <- new.sub.set
+  printf("Total cells trimmed: %s", ncells.trimmed.total)
+  printf("Total of patients not in data: %s", no.pat.it)
+  print("Done loading and manipulating data for Day3.")
+  print(dim(temp.data.all))
+  # Basal Validation: 470928   40
+  # Basal Training: 3697393   40
+  # BCR Validation: 470928   40
+  # BCR Training: 2204361      40
+  # IL7 Training: 2981065      40
+  # Pervanadate Training: 2047132      40
+  # TSLP Training: 2164262      40
+  saveRDS(temp.data.all, file <- paste0(data.table.name, ".rds"))
+  printf("Saved temp.data.all in %s", paste0(data.table.name, ".rds"))
+  
+  print(dim(data.man.all))
+  # Basal Validation: 18366192    4
+  # Basal Training: 144198327     4
+  # BCR Validation: 18366192    4
+  # BCR Training: 85970079        4
+  # IL7 Validation: 19110624        4
+  # IL7 Training:  116261535         4
+  # Pervanadate Training: 79838148        4
+  # TSLP Training: 84406218        4
+  saveRDS(data.man.all, file <- paste0(data.table.name, "_man.rds"))
+  printf("Saved data.man.all in %s", paste0(data.table.name, "_man.rds"))
+  
+  ### patient ID not found
+  write.csv(paste(subgroup, paste(pat.not.found)), patient.not.found.name)
+  
+  ### save existing patient IDs in separate file name
+  new.sub.set <- sub.set[which(sub.set$Patient.ID %in% new.sub.set.id), ]
+  write.csv(new.sub.set, new.sub.set.name)
+  sub.set <- new.sub.set
 } else {
- if (file.exists(new.sub.set.name)) sub.set <- read.csv(new.sub.set.name)
+  if (file.exists(new.sub.set.name)) sub.set <- read.csv(new.sub.set.name)
  
- ### load temp.data.all
- temp.data.all <- readRDS(file = paste0(data.table.name, ".rds"))
- print(dim(temp.data.all))
- # Validation: 470928   40
- # Training: 3697393   40
- 
- # load matrix data.all
- data.man.all <- readRDS(file = paste0(data.table.name, "_man.rds"))
- print(dim(data.man.all))
- # Validation: 18366192    4
- # Training: 144198327     4
+  ### load temp.data.all
+  temp.data.all <- readRDS(file = paste0(data.table.name, ".rds"))
+  print(dim(temp.data.all))
+  
+  # load matrix data.all
+  data.man.all <- readRDS(file = paste0(data.table.name, "_man.rds"))
+  print(dim(data.man.all))
 }
 dbDisconnect(fcs$conn)
 
