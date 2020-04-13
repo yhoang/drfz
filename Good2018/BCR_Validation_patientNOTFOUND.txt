@@ -1,3 +1,0 @@
-"","x"
-"1","Validation UPN94"
-"2","Validation UPN95"
