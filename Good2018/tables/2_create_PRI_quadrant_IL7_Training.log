@@ -1,0 +1,124 @@
+Thu Apr 09 10:57:16 2020
+1::UPN1::IL7::Training::full::cluster=3 
+126.94 65.69 5268.32 NA NA
+Thu Apr 09 11:42:40 2020
+2::UPN2::IL7::Training::full::cluster=3 
+257.93 134.55 7992.89 NA NA
+Thu Apr 09 12:10:49 2020
+3::UPN3::IL7::Training::full::cluster=3 
+386.52 200.19 9681.43 NA NA
+Thu Apr 09 13:20:08 2020
+4::UPN6::IL7::Training::full::cluster=3 
+511.18 263.82 13840.17 NA NA
+Thu Apr 09 14:52:16 2020
+5::UPN7::IL7::Training::full::cluster=3 
+644.14 330.52 19368.62 NA NA
+Thu Apr 09 15:47:45 2020
+6::UPN8::IL7::Training::full::cluster=3 
+777.58 400.3 22697.2 NA NA
+Thu Apr 09 16:31:32 2020
+7::UPN9::IL7::Training::full::cluster=3 
+917.74 478.47 25324.62 NA NA
+Thu Apr 09 17:26:27 2020
+8::UPN11::IL7::Training::full::cluster=3 
+1054.47 556.75 28619.45 NA NA
+Thu Apr 09 18:56:17 2020
+9::UPN12::IL7::Training::full::cluster=3 
+1192.72 632.74 34010.93 NA NA
+Thu Apr 09 19:51:14 2020
+10::UPN13::IL7::Training::full::cluster=3 
+1342.38 713.6 37307.34 NA NA
+Thu Apr 09 20:47:58 2020
+11::UPN15::IL7::Training::full::cluster=3 
+1464.07 774.47 40710.51 NA NA
+Thu Apr 09 21:37:43 2020
+12::UPN16::IL7::Training::full::cluster=3 
+1593.11 838.58 43695.45 NA NA
+Thu Apr 09 22:56:55 2020
+13::UPN17::IL7::Training::full::cluster=3 
+1710.11 901.35 48447.62 NA NA
+Thu Apr 09 23:26:27 2020
+14::UPN18::IL7::Training::full::cluster=3 
+1836.46 967.05 50219.2 NA NA
+Fri Apr 10 00:24:42 2020
+15::UPN19::IL7::Training::full::cluster=3 
+1956.41 1028.88 53714.25 NA NA
+Fri Apr 10 00:54:46 2020
+16::UPN21::IL7::Training::full::cluster=3 
+2086.11 1093.13 55518.89 NA NA
+Fri Apr 10 01:41:02 2020
+17::UPN23::IL7::Training::full::cluster=3 
+2205.82 1155.33 58294.12 NA NA
+Fri Apr 10 02:32:04 2020
+18::UPN24::IL7::Training::full::cluster=3 
+2323.63 1215.94 61356.85 NA NA
+Fri Apr 10 03:28:48 2020
+19::UPN25::IL7::Training::full::cluster=3 
+2439.58 1275.32 64760.17 NA NA
+Fri Apr 10 04:09:22 2020
+20::UPN26::IL7::Training::full::cluster=3 
+2552.47 1331.13 67194.89 NA NA
+Fri Apr 10 05:02:13 2020
+21::UPN27::IL7::Training::full::cluster=3 
+2661.63 1383.91 70365.18 NA NA
+Fri Apr 10 05:32:10 2020
+22::UPN28::IL7::Training::full::cluster=3 
+2771.88 1434.08 72162.09 NA NA
+Fri Apr 10 06:23:06 2020
+23::UPN29::IL7::Training::full::cluster=3 
+2882.43 1486.21 75218.51 NA NA
+Fri Apr 10 07:00:23 2020
+24::UPN31::IL7::Training::full::cluster=3 
+2992.28 1539.11 77455.7 NA NA
+Fri Apr 10 07:35:00 2020
+25::UPN47::IL7::Training::full::cluster=3 
+3103.64 1591.1 79532.98 NA NA
+Fri Apr 10 08:06:40 2020
+26::UPN48::IL7::Training::full::cluster=3 
+3213.94 1643.24 81432.67 NA NA
+Fri Apr 10 08:45:04 2020
+27::UPN49::IL7::Training::full::cluster=3 
+3326.1 1697.6 83736.96 NA NA
+Fri Apr 10 09:23:29 2020
+28::UPN50::IL7::Training::full::cluster=3 
+3436.27 1752.52 86041.67 NA NA
+Fri Apr 10 09:50:27 2020
+29::UPN52::IL7::Training::full::cluster=3 
+3547.1 1806.41 87659.18 NA NA
+Fri Apr 10 10:33:56 2020
+30::UPN53::IL7::Training::full::cluster=3 
+3658.25 1859.94 90268.45 NA NA
+Fri Apr 10 11:15:46 2020
+31::UPN54::IL7::Training::full::cluster=3 
+3769.38 1913.07 92780 NA NA
+Fri Apr 10 11:53:50 2020
+32::UPN55::IL7::Training::full::cluster=3 
+3879.47 1965.66 95062.14 NA NA
+Fri Apr 10 12:25:45 2020
+33::UPN56::IL7::Training::full::cluster=3 
+3992.94 2023.32 96977.73 NA NA
+Fri Apr 10 12:52:46 2020
+34::UPN58::IL7::Training::full::cluster=3 
+4124.71 2084.85 98598.68 NA NA
+Fri Apr 10 14:28:27 2020
+35::UPN90::IL7::Training::full::cluster=3 
+4277.5 2160.44 104339.75 NA NA
+Fri Apr 10 16:04:13 2020
+36::UPN91::IL7::Training::full::cluster=3 
+4431.14 2234.94 110087.48 NA NA
+Fri Apr 10 16:31:54 2020
+37::UPN92::IL7::Training::full::cluster=3 
+4585.86 2309.1 111746.4 NA NA
+Fri Apr 10 17:21:25 2020
+38::UPN93::IL7::Training::full::cluster=3 
+4745.24 2383.57 114717.78 NA NA
+Fri Apr 10 19:22:59 2020
+39::UPN96::IL7::Training::full::cluster=3 
+4898.85 2456.83 122011.81 NA NA
+Fri Apr 10 19:57:44 2020
+40::UPN97::IL7::Training::full::cluster=3 
+5059.46 2529.52 124096.26 NA NA
+Fri Apr 10 21:22:28 2020
+41::UPN98::IL7::Training::full::cluster=3 
+5253.28 2599.36 129181.03 NA NA
+Done. D:/drfz/Good2018/Rdata/IL7/IL7_Training_quadrant_absRange_cof0.2.rds saved!

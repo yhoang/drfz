@@ -1,0 +1,103 @@
+Sun Apr 12 14:50:53 2020
+1::UPN1::TSLP::Training::full::cluster=3 
+115.889999999999 56.72 5479.34999999998 NA NA
+Sun Apr 12 15:35:42 2020
+2::UPN2::TSLP::Training::full::cluster=3 
+231.110000000001 116.19 8168.41999999998 NA NA
+Sun Apr 12 16:08:40 2020
+3::UPN3::TSLP::Training::full::cluster=3 
+345.490000000005 174.48 10145.86 NA NA
+Sun Apr 12 17:25:45 2020
+4::UPN6::TSLP::Training::full::cluster=3 
+460.380000000005 233.26 14770.88 NA NA
+Sun Apr 12 19:01:35 2020
+5::UPN7::TSLP::Training::full::cluster=3 
+574.840000000011 289.86 20521.44 NA NA
+Sun Apr 12 20:01:09 2020
+6::UPN8::TSLP::Training::full::cluster=3 
+693.639999999999 346.44 24095.77 NA NA
+Sun Apr 12 20:38:31 2020
+7::UPN9::TSLP::Training::full::cluster=3 
+811.669999999998 403.84 26338.05 NA NA
+Sun Apr 12 21:25:27 2020
+8::UPN11::TSLP::Training::full::cluster=3 
+925.990000000005 462.5 29153.94 NA NA
+Sun Apr 12 22:48:34 2020
+9::UPN12::TSLP::Training::full::cluster=3 
+1042 521.76 34140.2 NA NA
+Sun Apr 12 23:38:52 2020
+10::UPN13::TSLP::Training::full::cluster=3 
+1155.92 580.86 37158.35 NA NA
+Mon Apr 13 00:41:48 2020
+11::UPN15::TSLP::Training::full::cluster=3 
+1268.19 633.76 40935.11 NA NA
+Mon Apr 13 01:27:10 2020
+12::UPN16::TSLP::Training::full::cluster=3 
+1380.61 689.64 43657.67 NA NA
+Mon Apr 13 02:55:09 2020
+13::UPN17::TSLP::Training::full::cluster=3 
+1492.28 747.01 48935.36 NA NA
+Mon Apr 13 03:23:30 2020
+14::UPN18::TSLP::Training::full::cluster=3 
+1605.66 802.87 50636.77 NA NA
+Mon Apr 13 04:27:33 2020
+15::UPN19::TSLP::Training::full::cluster=3 
+1717.05 858.98 54480.11 NA NA
+Mon Apr 13 05:00:12 2020
+16::UPN21::TSLP::Training::full::cluster=3 
+1830.72 913.2 56438.44 NA NA
+Mon Apr 13 05:47:57 2020
+17::UPN23::TSLP::Training::full::cluster=3 
+1942.36 970.14 59303.53 NA NA
+Mon Apr 13 06:40:54 2020
+18::UPN24::TSLP::Training::full::cluster=3 
+2056 1025.47 62480.66 NA NA
+Mon Apr 13 07:42:57 2020
+19::UPN25::TSLP::Training::full::cluster=3 
+2171.02 1081.42 66204.03 NA NA
+Mon Apr 13 08:29:44 2020
+20::UPN26::TSLP::Training::full::cluster=3 
+2287.02 1139.58 69010.2 NA NA
+Mon Apr 13 09:37:01 2020
+21::UPN27::TSLP::Training::full::cluster=3 
+2405.3 1197.03 73047.36 NA NA
+Mon Apr 13 10:13:07 2020
+22::UPN28::TSLP::Training::full::cluster=3 
+2518.41 1253.59 75213.75 NA NA
+Mon Apr 13 11:16:26 2020
+23::UPN29::TSLP::Training::full::cluster=3 
+2633.99000000001 1309.72 79012.78 NA NA
+Mon Apr 13 12:01:11 2020
+24::UPN31::TSLP::Training::full::cluster=3 
+2745.16 1366.94 81697.22 NA NA
+Mon Apr 13 12:37:39 2020
+25::UPN47::TSLP::Training::full::cluster=3 
+2856.88 1424.98 83885.24 NA NA
+Mon Apr 13 13:16:58 2020
+26::UPN48::TSLP::Training::full::cluster=3 
+2971.67 1486.39 86244.61 NA NA
+Mon Apr 13 14:06:52 2020
+27::UPN49::TSLP::Training::full::cluster=3 
+3084.78 1542.69 89239.81 NA NA
+Mon Apr 13 14:49:11 2020
+28::UPN50::TSLP::Training::full::cluster=3 
+3199.58 1599.34 91779.3 NA NA
+Mon Apr 13 15:35:30 2020
+29::UPN52::TSLP::Training::full::cluster=3 
+3313.69 1658.12 94556.75 NA NA
+Mon Apr 13 16:27:57 2020
+30::UPN53::TSLP::Training::full::cluster=3 
+3429.42 1717.09 97703.63 NA NA
+Mon Apr 13 17:21:22 2020
+31::UPN54::TSLP::Training::full::cluster=3 
+3544.19 1773.44 100908.44 NA NA
+Mon Apr 13 18:11:35 2020
+32::UPN55::TSLP::Training::full::cluster=3 
+3654 1830.11 103921.27 NA NA
+Mon Apr 13 18:45:34 2020
+33::UPN56::TSLP::Training::full::cluster=3 
+3746.05 1878.09 105961.02 NA NA
+Mon Apr 13 19:09:22 2020
+34::UPN58::TSLP::Training::full::cluster=3 
+3867.63 1923.25 107388.33 NA NA
+Done. D:/drfz/Good2018/Rdata/TSLP/TSLP_Training_full_quadrant_absRange_cof0.2.rds saved!

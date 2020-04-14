@@ -1,0 +1,223 @@
+[1] "Database opened: D:/DB/RB_20191002_Good2018.sqlite3"
+[1] 3697393      40
+[1] "1::UPN1::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=38)"
+       User      System verstrichen 
+     265.31      116.72     2662.02 
+Tue Apr 07 22:21:13 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "2::UPN2::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=76)"
+       User      System verstrichen 
+     520.45      237.28     4458.45 
+Tue Apr 07 22:51:09 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "3::UPN3::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=114)"
+       User      System verstrichen 
+     773.60      357.15     5922.91 
+Tue Apr 07 23:15:34 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "4::UPN6::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=152)"
+       User      System verstrichen 
+    1032.19      477.98     8168.00 
+Tue Apr 07 23:52:59 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "5::UPN10::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=190)"
+       User      System verstrichen 
+    1286.92      599.83     9784.16 
+Wed Apr 08 00:19:55 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "6::UPN11::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=228)"
+       User      System verstrichen 
+    1543.63      721.70    11482.03 
+Wed Apr 08 00:48:13 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "7::UPN12::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=266)"
+       User      System verstrichen 
+    1812.10      847.37    14717.34 
+Wed Apr 08 01:42:08 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "8::UPN13::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=304)"
+       User      System verstrichen 
+    2072.78      972.01    16771.52 
+Wed Apr 08 02:16:23 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "9::UPN15::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=342)"
+       User      System verstrichen 
+    2335.64     1096.47    19132.24 
+Wed Apr 08 02:55:43 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "10::UPN16::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=380)"
+       User      System verstrichen 
+    2599.35     1225.06    21291.50 
+Wed Apr 08 03:31:42 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "11::UPN17::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=418)"
+       User      System verstrichen 
+    2862.33     1354.04    25166.49 
+Wed Apr 08 04:36:18 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "12::UPN18::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=456)"
+       User      System verstrichen 
+    3121.86     1476.67    26732.44 
+Wed Apr 08 05:02:23 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "13::UPN19::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=494)"
+       User      System verstrichen 
+    3386.35     1607.36    29374.88 
+Wed Apr 08 05:46:26 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "14::UPN21::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=532)"
+       User      System verstrichen 
+    3647.39     1731.68    31247.13 
+Wed Apr 08 06:17:37 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "15::UPN22::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=570)"
+       User      System verstrichen 
+    3904.61     1854.64    32686.19 
+Wed Apr 08 06:41:37 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "16::UPN23::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=608)"
+       User      System verstrichen 
+    4170.95     1982.40    35840.86 
+Wed Apr 08 07:34:12 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "17::UPN24::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=646)"
+       User      System verstrichen 
+    4435.85     2110.73    38455.84 
+Wed Apr 08 08:17:46 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "18::UPN25::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=684)"
+       User      System verstrichen 
+    4703.14     2240.78    41430.22 
+Wed Apr 08 09:07:21 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "19::UPN26::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=722)"
+       User      System verstrichen 
+    5022.05     2406.01    43977.33 
+Wed Apr 08 09:49:49 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "20::UPN27::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=760)"
+       User      System verstrichen 
+    5342.88     2568.61    47769.28 
+Wed Apr 08 10:53:01 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "21::UPN28::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=798)"
+       User      System verstrichen 
+    5659.49     2727.72    50147.88 
+Wed Apr 08 11:32:39 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "22::UPN29::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=836)"
+       User      System verstrichen 
+    5974.95     2882.78    53429.06 
+Wed Apr 08 12:27:20 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "23::UPN31::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=874)"
+       User      System verstrichen 
+    6278.13     3026.29    55918.27 
+Wed Apr 08 13:08:50 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "24::UPN35::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=912)"
+       User      System verstrichen 
+    6558.78     3163.62    57160.89 
+Wed Apr 08 13:29:32 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "25::UPN48::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=950)"
+       User      System verstrichen 
+    6840.94     3300.20    58754.59 
+Wed Apr 08 13:56:05 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "26::UPN49::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=988)"
+       User      System verstrichen 
+    7131.25     3439.08    61198.91 
+Wed Apr 08 14:36:51 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "27::UPN50::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1026)"
+       User      System verstrichen 
+    7420.86     3580.90    63674.75 
+Wed Apr 08 15:18:06 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "28::UPN52::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1064)"
+       User      System verstrichen 
+    7701.77     3713.54    65717.25 
+Wed Apr 08 15:52:10 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "29::UPN53::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1102)"
+       User      System verstrichen 
+    8000.80     3865.29    68563.97 
+Wed Apr 08 16:39:36 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+
+[1] "30::UPN54::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1140)"
+       User      System verstrichen 
+    8304.53     4020.53    71905.84 
+Wed Apr 08 17:35:16 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+
+[1] "31::UPN55::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1178)"
+       User      System verstrichen 
+    8613.99     4182.97    74704.56 
+Wed Apr 08 18:21:56 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "32::UPN56::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1216)"
+       User      System verstrichen 
+    8918.61     4338.11    78301.02 
+Wed Apr 08 19:21:53 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "33::UPN58::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1254)"
+       User      System verstrichen 
+    9230.85     4532.09    81539.30 
+Wed Apr 08 20:15:53 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+
+[1] "34::UPN90::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1292)"
+       User      System verstrichen 
+    9521.50     4672.14    85171.64 
+Wed Apr 08 21:16:22 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+
+[1] "35::UPN91::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1330)"
+       User      System verstrichen 
+    9810.99     4811.00    88718.45 
+Wed Apr 08 22:15:29 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+
+[1] "36::UPN92::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1368)"
+       User      System verstrichen 
+   10109.88     4960.65    90633.70 
+Wed Apr 08 22:47:27 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+
+[1] "38::UPN96::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1444)"
+       User      System verstrichen 
+   10719.05     5257.09    97992.20 
+project=Basal subgroup=Training coverage=full cluster=5 
+[1] "39::UPN97::Basal::Training::absRange::v1=RAG1[36/39] ready (it=1480)"
+       User      System verstrichen 
+   10990.69     5390.12    99904.24 
+[1] "39::UPN97::Basal::Training::absRange::v1=TdT[37/39] ready (it=1481)"
+       User      System verstrichen 
+   10999.00     5393.90    99948.13 
+[1] "39::UPN97::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1482)"
+project=Basal subgroup=Training coverage=full cluster=5 
+11006.28 5397.7 99983.06 NA NA
+[1] "40::UPN98::Basal::Training::absRange::v1=tIKAROS[38/39] ready (it=1520)"
+Thu Apr 09 02:26:00 2020
+project=Basal subgroup=Training coverage=full cluster=5 
+11357.99 5542.22 103749.74 NA NA
+[1] "Total time:"
+       User      System verstrichen 
+   11357.99     5542.22   103749.74 
+Thu Apr 09 09:37:27 2020
+7::UPN9::Basal::Training::full::cluster=1 
+1.22 0.21 13.17 NA NA
+Thu Apr 09 13:22:48 2020
+5::UPN7::Basal::Training::full::cluster=1 
+12853.41 228.27 13382.95 NA NA
+Thu Apr 09 19:11:35 2020
+6::UPN8::Basal::Training::full::cluster=1 
+31917.47 1289.88 34309.11 NA NA
+Fri Apr 10 03:18:01 2020
+7::UPN9::Basal::Training::full::cluster=1 
+58931.55 3322.94 63495.48 NA NA
+Fri Apr 10 04:26:24 2020
+28::UPN47::Basal::Training::full::cluster=1 
+62952.92 3402.08 67598.81 NA NA

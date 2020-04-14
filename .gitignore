@@ -1,9 +1,15 @@
-!/Good2018/coxhazard/20200302_cox.model_V03.R
-!/Good2018/Rdata/*.*
-!/Good2018/coxhazard/Eric/*.*
-!/Good2018/coxhazard/Basal/*.*
-!/.vscode/vscode-R/*.*
-!/Good2018/coxhazard/Eric.Urbansky/*.*
-!/Good2018/coxhazard/Felix.Lohrke/*.*
-!/Good2018/tables/old_*.*
-!/Good2018/tables/Basal_TrainingSet_*.*
+### IDE files
+.vscode/**/*.*
+### RDS files
+Good2018/Rdata/**/*.*
+### tables
+Good2018/tables/old_*.*
+Good2018/tables/Basal_TrainingSet_*.*
+### results to Basal
+Good2018/coxhazard/Basal/*.*
+### old uncommented and cleaned
+Good2018/coxhazard/20200302_cox.model_V03.R
+### students directories
+Good2018/coxhazard/Eric/*.*
+Good2018/coxhazard/Eric.Urbansky/**/*.*
+Good2018/coxhazard/Felix.Lohrke/**/*.*
