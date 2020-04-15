@@ -31,6 +31,9 @@ print("######################################")
 df.training.func <- readRDS("/home/felix/AG_Baumgrass/Scripts/Pri/Pri_good_established/Rds/BCR/BCR_Training_full_quadrant_absRange_cof0.2.rds")
 df.validation.func <- readRDS("/home/felix/AG_Baumgrass/Scripts/Pri/Pri_good_established/Rds/BCR/BCR_Validation_full_quadrant_absRange_cof0.2.rds")
 
+# saving rownames
+rownames.training <- row.names(df.training.func)
+rownames.validation <- row.names(df.validation.func)
 
 ##### bug checking #####
 #trainingold <- df.training.func
@@ -126,6 +129,9 @@ print(nrow(df.training.funconly))
 print(ncol(df.validation.funconly))
 print(nrow(df.validation.funconly))
 
+# adding rownames
+row.names(df.training.funconly) <- rownames.training
+row.names(df.validation.funconly) <- rownames.validation
 
 # saving modified training and validation dataframes
 
