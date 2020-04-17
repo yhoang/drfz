@@ -5,6 +5,7 @@ Good2018/Rdata/**/*.*
 ### tables
 Good2018/tables/old_*.*
 Good2018/tables/Basal_TrainingSet_*.*
+Good2018/tables/patient_cohort_overview.csv
 ### results to Basal
 Good2018/coxhazard/Basal/*.*
 ### old uncommented and cleaned
@@ -13,3 +14,5 @@ Good2018/coxhazard/20200302_cox.model_V03.R
 Good2018/coxhazard/Eric/*.*
 Good2018/coxhazard/Eric.Urbansky/**/*.*
 Good2018/coxhazard/Felix.Lohrke/**/*.*
+### literature
+Good2018/paper/*.*/*

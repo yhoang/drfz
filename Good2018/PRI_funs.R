@@ -7,6 +7,7 @@ fcs <- new.env()
 
 ### helpful print function
 printf <- function(...) invisible(print(sprintf(...)))
+
 is.nan.data.frame <- function(x) {
   do.call(cbind, lapply(x, is.nan))
 }
