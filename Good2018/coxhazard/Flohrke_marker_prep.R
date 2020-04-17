@@ -62,24 +62,34 @@ print("######################################")
 df.training.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_full_quadrant_absRange_cof0.2.rds"))
 df.validation.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_full_quadrant_absRange_cof0.2.rds"))
 
-# saving rownames
-rownames.training <- row.names(df.training.full)
-rownames.validation <- row.names(df.validation.full)
-
-# saving marker names of dataframes
-names.df.training <- names(df.training.full)
-names.df.validation <- names(df.validation.full)
 
 # saving as new df from read ins to change
 df.training.func <- as.data.frame(df.training.full)
 df.validation.func <- as.data.frame(df.validation.full)
+# saving rownames
+rownames.training <- row.names(df.training.full)
+rownames.validation <- row.names(df.validation.full)
+# saving marker names of dataframes
+names.df.training <- names(df.training.full)
+names.df.validation <- names(df.validation.full)
+
+if (TRUE) {
+    strings <- unlist(strsplit(names.df.training, "[.]"))
+    strings.tab <- table(strings)
+    strings.tab <- strings.tab[-which(names(strings.tab) %in% c("absRange", "Q1", "Q2", "Q3", "Q4"))]
+    markers.in.rds <- names(strings.tab)
+    # should be true
+    all(markers.in.rds == markers.full)
+    all(markers.in.rds[which(markers.in.rds %in% markers.notfunc)] == markers.notfunc)
+}
+
 
 ### training
 print("#### Working on training set ####")
 for (i in 1:length(markers.notfunc)) {
     # index pos of markers to be removed
-    printf("Marker that is selected to be removed: %s", markers.notfunc[i])
-    ind.train <- grep(markers.notfunc[i], names.df.training)
+    printf("%st marker selected to be removed: %s", i, markers.notfunc[i])
+    ind.train <- grep(paste0(markers.notfunc[i], "\\."), names.df.training)
     
     # only execute if to removed markers are still in the dataframe
     if (length(ind.train) != 0){
@@ -97,8 +107,8 @@ printf("PRI features left: %s", ncol(df.training.func))
 print("#### Working on validation set ####")
 for (i in 1:length(markers.notfunc)) {
     # index pos of markers to be removed
-    printf("Marker that is selected to remove: %s", markers.notfunc[i])
-    ind.val <- grep(markers.notfunc[i], names.df.validation)
+    printf("%st marker selected to be removed: %s", i, markers.notfunc[i])
+    ind.val <- grep(paste0(markers.notfunc[i], "\\."), names.df.validation)
     
     # only execute if to removed markers are still in the dataframe
     if (length(ind.val) != 0){
@@ -106,7 +116,7 @@ for (i in 1:length(markers.notfunc)) {
         names.df.validation <- names(df.validation.func)
         # printf("PRI features left: %s", ncol(df.validation.func))
     } else {
-        print("marker not found")
+        printf("Marker not found: %s", markers.notfunc[i])
     }
 
 }
