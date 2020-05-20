@@ -6,8 +6,11 @@ Good2018/Rdata/**/*.*
 Good2018/tables/old_*.*
 Good2018/tables/Basal_TrainingSet_*.*
 Good2018/tables/patient_cohort_overview.csv
-### results to Basal
+### logs
+Good2018/log/*.*
+### results
 Good2018/coxhazard/Basal/*.*
+Good2018/coxhazard/BCR/*.*
 ### old uncommented and cleaned
 Good2018/coxhazard/20200302_cox.model_V03.R
 ### students directories
@@ -24,3 +27,5 @@ Good2018/paper/cites/Uno2007_iAUC.pdf
 Good2018/paper/cites/Uno2011_C-statistic.pdf
 Good2018/paper/cites/Uno2013_A unified inference procedure for a class of measures to assess improvement in risk prediction systems with survival data.pdf
 Good2018/paper/cites/Wolever1985_iAUC.pdf
+### pngs
+Good2018/png/*
