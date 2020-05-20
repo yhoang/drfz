@@ -22,8 +22,8 @@ options(max.print = 100)
 cofactor <- 0.2
 mincells <- 5
 stat.id <- 1
-cluster.size <- 3
-project.id <- 4
+cluster.size <- 4
+project.id <- 2
 subgroup <- "Training"
 # subgroup <- "Validation"
 coverage <- "full"
@@ -98,7 +98,7 @@ dbDisconnect(fcs$conn)
 ### initiate input dataframe name RDS - file
 data.table.name <- sprintf("%s/Rdata/%s/%s_%s_df_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, cofactor)
 ### initiate output dataframe name RDS - file
-quad.table.name <- sprintf("%s/Rdata/%s/%s_%s_%s_quadrant_%s_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor)
+quad.table.name <- sprintf("%s/Rdata/%s/%s_%s_%s_quadrant.new_%s_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor)
 
 ### load matrix temp.data.all
 temp.data.all <- readRDS(data.table.name)
@@ -242,6 +242,18 @@ if (FALSE) {
     quad.df.all <- rbindlist(list(quad.df1, quad.df2))
     saveRDS(quad.df.all, file = sprintf("%s/Rdata/%s/%s_%s_%s_quadrant.all_%s_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor))
     printf(sprintf("%s/Rdata/%s/%s_%s_%s_quadrant.all_%s_cof%s.rds saved!", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor))
+
+    test <- readRDS("D:/drfz/Good2018/Rdata/BCR/CR_Training_full_quadrant_absRange_cof0.2.rds")
+
+    test.df <- test[34:37, ]
+    rownames(test.df) <- rownames(test)[34:37]
+    idx <- which(rownames(quad.df) %in% rownames(test.df))
+    test.df <- as.data.frame(test.df)
+
+    quad1.df <- quad.df[idx, ]
+    rownames(quad1.df) <- rownames(quad.df)[idx]
+
+
 }
 
 if (cluster.size > 1) stopCluster(cl)

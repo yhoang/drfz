@@ -1,21 +1,38 @@
 #!/usr/bin/R
 # Authors: Eric Urbansky and Yen Hoang
-# Transfer from 20200302
+# Transferred from 20200302
+
+rm(list = ls())
+options(max.print = 100)
 
 ### ---------- input
+# working.station   FL, YH; different path settings
 # conditional   TRUE/FALSE, if apply Ria's conditions
 # project.id    1:5, for Basal, BCR, IL7, Pervanadate, TSLP
+# sub.sample.name   func, func_plus3, func_plus6; different marker combinations
 # set.alpha     0:1, set alpha which was found to have lowest error rate, see find_alpha.R
 # sampling.size 1:10000, number of CV iterations
 # cluster.size  1:12, find out maximum cluster size with detectCores()
 
+working.station <- "YH"
 conditional <- FALSE
 project.id  <- 2
+sub.sample.name <- "func"
 set.alpha <- 1
 sampling.size <- 100
 cluster.size <- 3
-path.to.project <- "D:/drfz/Good2018/"
 
+
+# set path
+if (working.station == "FL") {
+    Project.path <- "/home/felix/AG_Baumgrass/Data/Good/Basal_for_Felix/Basal_for_Felix/"
+    Rdata.path <- file.path("", "home", "felix", "AG_Baumgrass", "Scripts", "Pri", "Pri_good_established", "Rds")
+    Text.path <- file.path("", "home", "felix", "AG_Baumgrass", "Data", "Good", "Marker_combinations")
+} else if (working.station == "YH") {
+    Project.path <- file.path("D:", "drfz", "Good2018")
+    Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata")
+    Text.path <- file.path("D:", "drfz", "Good2018", "tables")
+}
 
 
 ### ---------- load R packages
@@ -25,11 +42,13 @@ lapply(librarys, require, character.only = TRUE)
 
 #a useful print function
 printf <- function(...) invisible(print(sprintf(...)))
-
 project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 
+condi <- vector()
+if (conditional) condi <- "condi1.1_"
+
 ### ---------- load and clean patient data from excel
-patient_data <- read_excel(paste0(path.to.project, "patient_cohort.xlsx"))
+patient_data <- read_excel(paste0(Text.path, "/patient_cohort.xlsx"))
 #View(patient_data)
 
 #set columstype from patien data str to numeric values
@@ -64,15 +83,9 @@ validation.set <- cohort[which(cohort$Cohort == "Validation"), 1:6]
 total.set <- bind_rows(training.set, validation.set)
 
 ### ---------- load PRI features as RDS
-if (conditional) {
-#absRange Condition 1.1
-df.training <- readRDS(paste0(path.to.project, "Rdata/", project.name[project.id], "/", project.name[project.id], "_Training_func_quadrant_absRange_condi1.1_cof0.2.rds"))
-df.validation <- readRDS(paste0(path.to.project, "Rdata", project.name[project.id], "/", project.name[project.id], "_Validation_func_quadrant_absRange_condi1.1_cof0.2.rds"))
-} else {
-#absRange ohne Condi 1.1
-df.training <- readRDS(paste0(path.to.project, "Rdata", project.name[project.id], "/", project.name[project.id], "_Training_func_quadrant_absRange_cof0.2.rds"))
-df.validation <- readRDS(paste0(path.to.project, "Rdata", project.name[project.id], "/", project.name[project.id], "_Validation_func_quadrant_absRange_cof0.2.rds"))
-}
+df.training <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_", sub.sample.name, "_quadrant_absRange_", condi, "cof0.2.rds"))
+df.validation <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_", sub.sample.name, "_quadrant_absRange_", condi, "cof0.2.rds"))
+
 
 #safe rownames ("patien ID")
 rownames.validation <- row.names(df.validation)
@@ -162,7 +175,7 @@ if (any(is.na(df.validation))) {
 seed.vec <- sample(sampling.size)
 it.total <- 0
 all.activ.Index <- all.coef.value <- vector()
-variabl.count <- vector()
+variable.count <- vector()
 min.cvm <- 100
 
 # initiate cluster for parallelism
@@ -200,7 +213,7 @@ while (it.total < sampling.size) {
     it.set <- it.null <- it.one <- 1
   }
 
-  #create folds
+  # create folds
   while (it.set < nrow(df.training) + 1) {
     if (df.training[it.set, 2] == 0) {
       fold.id[it.set] <- null.id[it.null]
@@ -214,7 +227,7 @@ while (it.total < sampling.size) {
     
   # columns sampling
   tmp <- df.training[, - c(1:3)]
-  tmp <- tmp[, sample(length(tmp))]
+  tmp <- tmp[, sample(ncol(tmp))]
 
   #create Model with cross validation
   cv.fit <- cv.glmnet(tmp, Surv(df.training[, 1],
@@ -230,7 +243,7 @@ while (it.total < sampling.size) {
   Active.Index <- which(Coefficients != 0)
   coef.value <- coef(cv.fit, s = cv.fit$lambda.min)
   all.coef.value <- c(all.coef.value, coef.value)
-  variabl.count <- c(variabl.count, length(Active.Index))
+  variable.count <- c(variable.count, length(Active.Index))
   print(length(Active.Index))
   tmp <- min(cv.fit$cvm)
 
@@ -240,7 +253,7 @@ while (it.total < sampling.size) {
   if (min.cvm > tmp) {
     min.cvm <- tmp
     op.fit <- cv.fit
-    op.variabl.count <- length(Active.Index)
+    op.variable.count <- length(Active.Index)
     op.index <- Active.Index
 
   }
@@ -255,8 +268,8 @@ print(Sys.time() - timeStart)
 stopCluster(cl)
 
 
-print(table(variabl.count))
-printf("Best model with #features: %s", op.variabl.count)
+print(table(variable.count))
+printf("Best model with #features: %s", op.variable.count)
 
 #prediction for training and validation set based on op.fit
 #prediction for type cox model = relativ risk (RR)
@@ -300,7 +313,7 @@ for (i in 1:length(threshold)) {
 }
 
 #safe ROC plot as pdf
-pdf(paste0(path.to.project, "coxhazard/", project.name[project.id], "/HIST-ROC-Plot.pdf"))
+pdf(paste0(Project.path, "coxhazard/", project.name[project.id], "/HIST-ROC-Plot.pdf"))
 par(mfrow = c(2, 2), pty = "s")
 #plot Roc Kurve
 plot(all.fp.rate, all.sens, type = "l", ylab = "Sensitivity", xlab = "False positiv Rate", ylim = c(0, 1), xlim = c(0, 1), main = "ROC Kurv")
@@ -362,7 +375,7 @@ names(vergleich.validation)[3] <- "DDPR Status"
 names(vergleich.validation)[4] <- "Fehler DDPR"
 names(vergleich.validation)[5] <- "Predicted Status Model"
 names(vergleich.validation)[6] <- "Error Model"
-write.xlsx(vergleich.validation, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Training.xlsx"))
+write.xlsx(vergleich.validation, paste0(Project.path, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Training.xlsx"))
 
 #find error in Prediction.training for ddpr
 fehler.ddpr <- df.training[, 2] - df.training[, 3]
@@ -384,11 +397,11 @@ names(vergleich.training)[3] <- "DDPR Status"
 names(vergleich.training)[4] <- "Error DDPR"
 names(vergleich.training)[5] <- "Predicted Status Model"
 names(vergleich.training)[6] <- "Error Model"
-write.xlsx(vergleich.training, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Validation.xlsx"))
+write.xlsx(vergleich.training, paste0(Project.path, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Validation.xlsx"))
 
 #bind training and validation error
 vergleich.total <- bind_rows(vergleich.training, vergleich.validation)
-write.xlsx(vergleich.total, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Total.xlsx"))
+write.xlsx(vergleich.total, paste0(Project.path, "coxhazard/", project.name[project.id], "/Prediction_DDPR_PRI_Total.xlsx"))
 
 ##############################################################################
 #auc
@@ -472,7 +485,7 @@ names(result.data)[3] <- "y Variable"
 names(result.data)[2] <- "x Variable"
 names(result.data)[1] <- "Variable Index"
 
-write.xlsx(result.data, paste0(path.to.project, "coxhazard/", project.name[project.id], "/Prediction_Variables.xlsx"))
+write.xlsx(result.data, paste0(Project.path, "coxhazard/", project.name[project.id], "/Prediction_Variables.xlsx"))
 
 ##########################################################################
 
@@ -487,7 +500,7 @@ df.head <- bind_cols(as.data.frame(relapse), df.head)
 row.names(df.head) <- c(rownames.training, rownames.validation)
 df.head <- df.head[order(df.head$relapse), ]
 
-pdf(paste0(path.to.project, "coxhazard/", project.name[project.id], "/Heatmap.pdf"), width = 10)
+pdf(paste0(Project.path, "coxhazard/", project.name[project.id], "/Heatmap.pdf"), width = 10)
 heatmap(t(as.matrix(df.head[, -1])), scale = "none", Colv = NA, ColSideColors = relapse[order(relapse)])
 dev.off()
 
@@ -499,4 +512,4 @@ status <- c(df.training[, 2], df.validation[, 2])
 df.new <- data.frame(time, status, vergleich.total[, 5])
 km.type <- survfit(Surv(df.new[, 1], df.new[, 2]) ~ df.new[, 3], data = df.new, type = "kaplan-meier")
 ggsurvplot(km.type, conf.int = TRUE, legend.labs = c("low Risk", "high Risk"), ggtheme = theme_minimal(), pval = TRUE, pval.method = TRUE)
-)
+

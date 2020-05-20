@@ -14,8 +14,9 @@ options(max.print = 100)
 working.station <- "FL"
 working.station <- "YH"
 
-sub.sample.name <- "func_plus3"
-project.id  <- 2
+sub.sample.name <- "func"
+project.id <- 2
+Rdata.demo <- "part1+2"
 
 
 if (working.station == "FL") {
@@ -25,16 +26,22 @@ if (working.station == "FL") {
     Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata")
     Text.path <- file.path("D:", "drfz", "Good2018", "tables")
 }
-
-
 #a useful print function
 printf <- function(...) invisible(print(sprintf(...)))
 project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 
 
+# Input training and validation sets from which markers not in sub sample are to be removed
+df.training.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_full_quadrant_", Rdata.demo, "_absRange_cof0.2.rds"))
+df.validation.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_full_quadrant_absRange_cof0.2.rds"))
+
 # define output path and filename
-outfile.training <- paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_", sub.sample.name, "_quadrant_absRange_cof0.2.rds")
-outfile.validation <- paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_", sub.sample.name, "_quadrant_absRange_cof0.2.rds")
+outfile.training <- paste0(Rdata.path, "/", project.name[project.id], "/", Rdata.demo, "/", project.name[project.id], "_Training_", sub.sample.name, "_quadrant_", Rdata.demo, "_absRange_cof0.2.rds")
+outfile.validation <- paste0(Rdata.path, "/", project.name[project.id], "/", Rdata.demo, "/", project.name[project.id], "_Validation_", sub.sample.name, "_quadrant_absRange_cof0.2.rds")
+
+
+
+
 
 # list names of all markers 
 markers.full <- scan(paste0(Text.path, "/columns_full.txt"), what="character", sep="\n")
@@ -57,11 +64,6 @@ print("######################################")
 printf("markers not in func: %s", length(markers.notfunc))
 print(markers.notfunc)
 print("######################################")
-
-# Training and validation sets from which markers not in sub sample are to be removed
-df.training.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_full_quadrant_absRange_cof0.2.rds"))
-df.validation.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_full_quadrant_absRange_cof0.2.rds"))
-
 
 # saving as new df from read ins to change
 df.training.func <- as.data.frame(df.training.full)
@@ -128,6 +130,11 @@ printf("Old dimension of Training set: %s", paste(dim(df.training.full), collaps
 printf("New dimension of Training set: %s", paste(dim(df.training.func), collapse = "  "))
 printf("Old dimension of Validation set: %s", paste(dim(df.validation.full), collapse = "  "))
 printf("New dimension of Validation set: %s", paste(dim(df.validation.func), collapse = "  "))
+
+len.marker <- length(markers.func)
+# m * (m - 1) * (m - 2) * 0.5 * 4
+len.features <- len.marker * (len.marker - 1) * (len.marker - 2) * 0.5 * 4
+printf("This data should have %s markers resulting to %s features.", len.marker, len.features)
 
 # adding rownames
 row.names(df.training.func) <- rownames.training

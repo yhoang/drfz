@@ -10,3 +10,115 @@ Fri Apr 10 21:32:54 2020
 Fri Apr 10 22:47:53 2020
 28::UPN47::BCR::Training::full::cluster=1 
 37126.51 89.06 37476.42 NA NA
+Tue Apr 21 11:13:04 2020
+1::UPN1::BCR::Training::full::cluster=4 
+112.53 52.9 3589.42000000004 NA NA
+Tue Apr 21 11:47:18 2020
+2::UPN2::BCR::Training::full::cluster=4 
+225.89 106 5643.05000000005 NA NA
+Tue Apr 21 12:13:51 2020
+3::UPN3::BCR::Training::full::cluster=4 
+339.14 160.9 7236.20000000007 NA NA
+Tue Apr 21 13:08:25 2020
+4::UPN6::BCR::Training::full::cluster=4 
+448.89 212.83 10510.39 NA NA
+Tue Apr 21 14:12:39 2020
+5::UPN7::BCR::Training::full::cluster=4 
+557.48 262.89 14365.9500000001 NA NA
+Tue Apr 21 15:06:01 2020
+6::UPN8::BCR::Training::full::cluster=4 
+670.12 316.01 17567.9400000001 NA NA
+Tue Apr 21 15:34:49 2020
+7::UPN9::BCR::Training::full::cluster=4 
+780.09 365.47 19294.3300000001 NA NA
+Tue Apr 21 15:58:29 2020
+8::UPN10::BCR::Training::full::cluster=4 
+890.42 416.44 20713.8 NA NA
+Tue Apr 21 16:32:33 2020
+9::UPN11::BCR::Training::full::cluster=4 
+1001.48 468.75 22757.98 NA NA
+Tue Apr 21 17:37:16 2020
+10::UPN12::BCR::Training::full::cluster=4 
+1129.86 534.84 26641.5800000001 NA NA
+Tue Apr 21 18:30:01 2020
+11::UPN13::BCR::Training::full::cluster=4 
+1267.25 614.06 29806.97 NA NA
+Tue Apr 21 19:24:15 2020
+12::UPN15::BCR::Training::full::cluster=4 
+1382.22 668.67 33060.55 NA NA
+Wed Apr 22 09:35:14 2020
+13::UPN16::BCR::Training::full::cluster=4 
+1497.56 721.89 84119.9400000001 NA NA
+Wed Apr 22 10:42:12 2020
+14::UPN17::BCR::Training::full::cluster=4 
+1615.14 780.62 88137.47 NA NA
+Wed Apr 22 11:10:04 2020
+15::UPN18::BCR::Training::full::cluster=4 
+1742.9 840.26 89809.5800000001 NA NA
+Wed Apr 22 12:03:12 2020
+16::UPN19::BCR::Training::full::cluster=4 
+1862.78 900.15 92997.17 NA NA
+Wed Apr 22 12:25:37 2020
+17::UPN21::BCR::Training::full::cluster=4 
+1976.37 952.04 94342.3300000001 NA NA
+Wed Apr 22 12:47:28 2020
+18::UPN22::BCR::Training::full::cluster=4 
+2089.26 1004.56 95653.38 NA NA
+Wed Apr 22 13:27:31 2020
+19::UPN23::BCR::Training::full::cluster=4 
+2204.12 1057.04 98056.03 NA NA
+Wed Apr 22 14:11:05 2020
+20::UPN24::BCR::Training::full::cluster=4 
+2310.84 1105.44 100671.64 NA NA
+Wed Apr 22 15:01:01 2020
+21::UPN25::BCR::Training::full::cluster=4 
+2423.47 1155.87 103666.33 NA NA
+Wed Apr 22 15:36:10 2020
+22::UPN26::BCR::Training::full::cluster=4 
+2535.23 1208.03 105775.06 NA NA
+Wed Apr 22 16:32:07 2020
+23::UPN27::BCR::Training::full::cluster=4 
+2647.15 1260.54 109132.09 NA NA
+Wed Apr 22 17:02:14 2020
+24::UPN28::BCR::Training::full::cluster=4 
+2761.26 1313.11 110939.34 NA NA
+Wed Apr 22 17:50:46 2020
+25::UPN29::BCR::Training::full::cluster=4 
+2872.98 1366.33 113851.64 NA NA
+Wed Apr 22 18:25:01 2020
+26::UPN31::BCR::Training::full::cluster=4 
+2982.9 1418.14 115908.05 NA NA
+Wed Apr 22 18:38:48 2020
+27::UPN35::BCR::Training::full::cluster=4 
+3092.09 1467.25 116732.97 NA NA
+Wed Apr 22 19:12:53 2020
+28::UPN47::BCR::Training::full::cluster=4 
+3217.72 1533.15 118778.66 NA NA
+Wed Apr 22 20:00:00 2020
+29::UPN48::BCR::Training::full::cluster=4 
+3367.42 1628.45 121607.03 NA NA
+Wed Apr 22 20:40:03 2020
+30::UPN49::BCR::Training::full::cluster=4 
+3487.39 1689.86 124008.28 NA NA
+Wed Apr 22 21:19:16 2020
+31::UPN50::BCR::Training::full::cluster=4 
+3604.03 1745.95 126362.48 NA NA
+Wed Apr 22 21:47:27 2020
+32::UPN52::BCR::Training::full::cluster=4 
+3724.87 1802.67 128052.8 NA NA
+Wed Apr 22 22:31:55 2020
+33::UPN53::BCR::Training::full::cluster=4 
+3837.23 1854.89 130720.5 NA NA
+Wed Apr 22 23:14:52 2020
+34::UPN54::BCR::Training::full::cluster=4 
+3945.15 1904.11 133298.22 NA NA
+Wed Apr 22 23:51:07 2020
+35::UPN55::BCR::Training::full::cluster=4 
+4054.97 1952.95 135472.98 NA NA
+Thu Apr 23 00:19:04 2020
+36::UPN56::BCR::Training::full::cluster=4 
+4165.36 2001.97 137150.73 NA NA
+Thu Apr 23 00:50:42 2020
+37::UPN58::BCR::Training::full::cluster=4 
+4326.56 2053.12 139047.2 NA NA
+Done. D:/drfz/Good2018/Rdata/BCR/BCR_Training_full_quadrant.new_absRange_cof0.2.rds saved!
