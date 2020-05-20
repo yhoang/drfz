@@ -15,19 +15,23 @@ options(max.print = 100)
 # mincells      2,5,10,20 [so far at 5]
 # stat.id       1:4 [absRange, variance, freq_green, mean]
 # cluster.size  1:12, detect with detectCores()
-# project.id    1:5 for Basal, BCR, IL7, Pervanadate, TSLP
+# dataset.id    1:5 for Basal, BCR, IL7, Pervanadate, TSLP
 # subgroup      "Validation", "Training"
-# coverage      full, func, func-plus3, func-plus6 [func=18, func-plus3=21, func-plus6=24]
+# subset        full, func, func-plus3, func-plus6 [func=18, func-plus3=21, func-plus6=24]
+# comment       "mean.sec" for 
 # check.cutoffs TRUE/FALSE, check if cutoffs are set in all files
 cofactor <- 0.2
 mincells <- 5
 stat.id <- 1
-cluster.size <- 4
-project.id <- 2
+cluster.size <- 5
+working.station = "YH"
+dataset.id <- 1
 subgroup <- "Training"
 # subgroup <- "Validation"
-coverage <- "full"
-check.cutoffs <- TRUE
+subset <- "full"
+subject <- "quadrant"
+comment <- "autoSec"
+check.cutoffs <- FALSE
 ### set paths
 folder.path <- file.path("D:", "drfz", "Good2018")
 db.path <- file.path("D:", "DB")
@@ -43,7 +47,7 @@ db.path <- file.path("D:", "DB")
 # dplyr      :  faster binding of columns bind_cols() and rows bind_rows()
 # foreach     :  allows for each loops
 # doParallel   :  use several clusters for parallele calculations
-load.libraries <- c("RSQLite", "dplyr", "reshape2", "foreach", "doParallel")
+load.libraries <- c("RSQLite", "dplyr", "reshape2", "foreach", "doParallel", "stringr")
 #install.packages(libraries, lib = "C:/Program Files/R/R-3.6.1/library")
 lapply(load.libraries, require, character.only = TRUE)
 ### load functions
@@ -52,31 +56,43 @@ printf <- function(...) invisible(print(sprintf(...)))
 
 
 setwd(folder.path)
-project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
-project.name.long <- c("Basal", "BCR-Crosslink", "IL-7", "Pervanadate", "TSLP")
+dataset.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
+dataset.name.long <- c("Basal", "BCR-Crosslink", "IL-7", "Pervanadate", "TSLP")
 stat.info <- c("absRange", "variance", "freq_green", "mean")
+today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 ### metatable file
-# cohort_full <- read.csv(sprintf("%s/tables/patient_cohort.csv", folder.path))
-# sub.set <- cohort_full[, c(1, 5, 8, 11, 16, 15)]
-sub.set <- read.csv(sprintf("%s/tables/%s_%s_patient_cohort.csv", folder.path, project.name[project.id], subgroup))
+### only to check if rerunning creating training data will produce same rdata
+if (FALSE) {
+    cohort_full <- read.csv(sprintf("%s/tables/patient_cohort.csv", folder.path))
+    ## remove the 4 patients with "Very early"
+    cohort_full <- cohort_full[-c(which(cohort_full$Type.of.Relapse == "Very early")), ]
+    cohort_full <- cohort_full[c(which(cohort_full$Cohort == subgroup)), ]
+    ## keep columns of interest
+    sub.set <- cohort_full[, c(1, 11, 8, 16, 15, 12, 14)]
+} else {
+    sub.set <- read.csv(sprintf("%s/tables/%s_%s_patient_cohort.csv", folder.path, dataset.name[dataset.id], subgroup))
+    sub.set <- sub.set[, -1]
+}
 sub.set$Relapse.Status <- factor(sub.set$Relapse.Status)
 sub.set$Patient.ID <- factor(sub.set$Patient.ID)
-col.vec.func <- as.vector(unlist(read.table(file=paste0(folder.path, "/tables/columns_", coverage, ".txt"))))
+col.vec.func <- as.vector(unlist(read.table(file=paste0(folder.path, "/tables/columns_", subset, ".txt"))))
+
+
 
 ### ------ load data from database
 db.name <- "RB_20191002_Good2018.sqlite3"
 
 fcs$connectDb(file.path(db.path, db.name))
 ### select project
-project.idx <- which(dbListTables(fcs$conn) == project.name[project.id])
-fileID <- fcs$getDFtable(paste0(project.name[project.id], "_fileIdentity"))
-stainID <- fcs$getDFtable(paste0(project.name[project.id], "_markerIdentity"))
+dataset.idx <- which(dbListTables(fcs$conn) == dataset.name[dataset.id])
+fileID <- fcs$getDFtable(paste0(dataset.name[dataset.id], "_fileIdentity"))
+stainID <- fcs$getDFtable(paste0(dataset.name[dataset.id], "_markerIdentity"))
 
 ### ------ check if all cutoffs are set for each sampleID
 if (check.cutoffs) {
     stopping <- FALSE
-    stainID2 <- fcs$getDFtable(paste0(project.name[1], "_markerIdentity"))
+    stainID2 <- fcs$getDFtable(paste0(dataset.name[1], "_markerIdentity"))
     vars <- unique(stainID$shortname)
     for (i in 1:length(vars)) {
         if (unique(stainID[which(stainID$shortname == vars[i]), 5]) != unique(stainID2[which(stainID2$shortname == vars[i]), 5])) {
@@ -95,16 +111,20 @@ if (check.cutoffs) {
 }
 dbDisconnect(fcs$conn)
 
-### initiate input dataframe name RDS - file
-data.table.name <- sprintf("%s/Rdata/%s/%s_%s_df_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, cofactor)
-### initiate output dataframe name RDS - file
-quad.table.name <- sprintf("%s/Rdata/%s/%s_%s_%s_quadrant.new_%s_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor)
+############### INPUT dataframe name RDS - file
+data.table.name <- sprintf("%s/Rdata/%s/%s_%s_df_cof%s.rds", folder.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup, cofactor)
+############### OUTPUT
+# dataframe name RDS - file
+quad.table.name <- sprintf("%s/Rdata/%s/%s_%s_%s_%s_%s_%s.cof%s_%s.rds", folder.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup, subset, subject, stat.info[stat.id], comment, cofactor, today)
+# log file
+logFile <- sprintf("%s/log/2_create_PRI_%s_%s_%s_%s.log",folder.path,  subject, dataset.name[dataset.id], subgroup, today)
+################
 
 ### load matrix temp.data.all
 temp.data.all <- readRDS(data.table.name)
 print(dim(temp.data.all))
-#[1] 3697393      40    for project.id=1 training
-#[1] 1943896      40    for project.id=2 training
+#[1] 3697393      40    for dataset.id=1 training
+#[1] 1943896      40    for dataset.id=2 training
 
 
 ### - - - - triplots quadrants, cache=TRUE - - - - - - - - - - - - - - - - - -
@@ -123,7 +143,6 @@ ncol <- (len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4 - 1),
 byrow <- TRUE
 ), stringsAsFactors <- FALSE)
 quad.sample_id <- vector()
-fileConn <- sprintf("tables/2_create_PRI_quadrant_%s_%s.log", project.name[project.id], subgroup)
 
 if (cluster.size > 1) {
     cl <- makeCluster(cluster.size)
@@ -136,16 +155,18 @@ for (i in 1:nrow(sub.set)) {
 # for (i in 1:1) {
     quad.sample_id <- c(quad.sample_id, as.character(sub.set$Patient.ID[i]))
 
-    file.name <- paste0(sub.set$Patient.ID[i], "_", project.name.long[project.id], ".fcs")
+    file.name <- paste0(sub.set$Patient.ID[i], "_", dataset.name.long[dataset.id], ".fcs")
     file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
     if (length(file.idx) == 0) {
-        file.name <- paste0(sub.set$Patient.ID[i], "_", tolower(project.name.long[project.id]), ".fcs") # file names vary..
+        file.name <- paste0(sub.set$Patient.ID[i], "_", tolower(dataset.name.long[dataset.id]), ".fcs") # file names vary..
         file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
     }
-    cutoffs <- stainID$file_savedCutoffs[which(stainID$file_ID == file.idx)]
-    names(cutoffs) <- stainID$shortname[which(stainID$file_ID == file.idx)]
-    # set to same order as in col.func.idx
-    cutoffs <- cutoffs[col.func.idx - 1]
+    if (comment != "autoSec") {
+        cutoffs <- stainID$file_savedCutoffs[which(stainID$file_ID == file.idx)]
+        names(cutoffs) <- stainID$shortname[which(stainID$file_ID == file.idx)]
+        # set to same order as in col.func.idx
+        cutoffs <- cutoffs[col.func.idx - 1]  
+    }
 
     quad.file <- vector()
     for (v1 in 1:(len.col - 1)) {
@@ -153,19 +174,23 @@ for (i in 1:nrow(sub.set)) {
         it <- it + 1
 
         quad.oper <- foreach(v2=(v1 + 1):len.col, .combine=cbind) %dopar% {
-            #   quad.oper <- foreach(v2=11:14, .combine=cbind) %dopar% {
+        # quad.oper <- foreach(v2=(v1 + 1), .combine=cbind) %dopar% {
             quadrant.vec <- vector()
 
             for (v3 in 1:len.col) {
-            #    for (v3 in 13:13) {
+            # for (v3 in 13:13) {
                 if (all(v3 != c(v1, v2))) {
-                sampl.data <- temp.data.all[which(temp.data.all$file_id == as.vector(sub.set$Patient.ID[i])), c(colvec[v1], colvec[v2], colvec[v3])]
-                ### NEW::ONLY rows where used if v1 or v2 are >0
-                # sampl.data <- sampl.data[which(sampl.data[,1]>=0 & sampl.data[,2]>=0),]
+                    sampl.data <- temp.data.all[which(temp.data.all$file_id == as.vector(sub.set$Patient.ID[i])), c(colvec[v1], colvec[v2], colvec[v3])]
+                    ### NEW::ONLY rows where used if v1 or v2 are >0
+                    # sampl.data <- sampl.data[which(sampl.data[,1]>=0 & sampl.data[,2]>=0),]
 
-                ### --------- calculate triplot quadrants
-                quad.results <- fcs$calc_triplot_quadrant(temp.data = sampl.data, calc.meth = stat.info[stat.id],  min.cells = mincells, prod.cutoff = cutoffs[c(v1, v2)])
-                quadrant.vec <- c(quadrant.vec, quad.results)
+                    ### --------- calculate triplot quadrants
+                    if (comment == "autoSec") {
+                        quad.results <- fcs$calc_triplot_quadrant(temp.data = sampl.data, calc.meth = stat.info[stat.id], min.cells = mincells)
+                    } else {
+                      quad.results <- fcs$calc_triplot_quadrant(temp.data = sampl.data, calc.meth = stat.info[stat.id], min.cells = mincells, prod.cutoff = cutoffs[c(v1, v2)])
+                    }
+                    quadrant.vec <- c(quadrant.vec, quad.results)
                 }
             }
 
@@ -178,14 +203,11 @@ for (i in 1:nrow(sub.set)) {
         if (i == nrow(sub.set)) {
             label.file <- vector()
             for (v1 in 1:(len.col - 1)) {
-            # for (v1 in 1:1) {
 
                 label.oper <- foreach(v2=(v1 + 1):len.col, .combine=cbind) %dopar% {
-                # label.oper <- foreach (v2=11:14,.combine=cbind) %dopar% {
                     label.vec <- vector()
 
                     for (v3 in 1:len.col) {
-                    # for (v3 in 13:13) {
                         if (all(v3 != c(v1, v2))) {
 
                             if (stat.info[stat.id] == "zRange") {
@@ -206,18 +228,19 @@ for (i in 1:nrow(sub.set)) {
             }
         }
 
-        printf("%s::%s::%s::%s::%s::v1=%s[%s/%s] ready (it=%s)", i, sub.set$Patient.ID[i], project.name[project.id], subgroup, stat.info[stat.id], colvec[v1], v1, len.col, it)
-    
-        print(proc.time() - ptm)
+        if (it %% 10 == 0) {
+            printf("%s::%s::%s::%s::%s::%s::v1=%s[%s/%s] ready (it=%s)", i, sub.set$Patient.ID[i], dataset.name[dataset.id], subgroup, stat.info[stat.id], comment, colvec[v1], v1, len.col, it)
+            print(proc.time() - ptm)
+        }
     }
     quad.df[i, ] <- quad.file
 
     printf("File %s ready (it=%s)", i, it)
     print(proc.time() - ptm)
 
-    sink(fileConn, append = TRUE)
+    sink(logFile, append = TRUE)
     cat(paste0(date(), "\n"), append = TRUE)
-    cat(sprintf("%s::%s::%s::%s::%s::cluster=%s \n", i, sub.set$Patient.ID[i], project.name[project.id], subgroup, coverage, cluster.size), append = TRUE)
+    cat(sprintf("%s::%s::%s::%s::%s::cluster=%s \n", i, sub.set$Patient.ID[i], dataset.name[dataset.id], subgroup, subset, cluster.size), append = TRUE)
     cat(paste0(proc.time() - ptm, collapse = " "), append = TRUE)
     cat("\n", append = TRUE)
     if (i == nrow(sub.set)) cat(paste0("Done. ", quad.table.name, " saved!"))
@@ -238,12 +261,12 @@ if (FALSE) {
     ### fastest way to bind tables with rbindlist()
     library(data.table)
     quad.df2 <- quad.df
-    quad.df1 <- readRDS(sprintf("%s/Rdata/%s/%s_%s_%s_quadrant_%s_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor))
+    quad.df1 <- readRDS(sprintf("%s/Rdata/%s/%s_%s_%s_%s_%s_cof%s.rds", folder.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup, subset, subject, stat.info[stat.id], cofactor))
     quad.df.all <- rbindlist(list(quad.df1, quad.df2))
-    saveRDS(quad.df.all, file = sprintf("%s/Rdata/%s/%s_%s_%s_quadrant.all_%s_cof%s.rds", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor))
-    printf(sprintf("%s/Rdata/%s/%s_%s_%s_quadrant.all_%s_cof%s.rds saved!", folder.path, project.name[project.id], project.name[project.id], subgroup, coverage, stat.info[stat.id], cofactor))
+    saveRDS(quad.df.all, file = sprintf("%s/Rdata/%s/%s_%s_%s_%s_%s_cof%s.rds", folder.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup, subset, subject, stat.info[stat.id], cofactor))
+    printf(sprintf("%s/Rdata/%s/%s_%s_%s_%s_%s_cof%s.rds saved!", folder.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup, subset, subject, stat.info[stat.id], cofactor))
 
-    test <- readRDS("D:/drfz/Good2018/Rdata/BCR/CR_Training_full_quadrant_absRange_cof0.2.rds")
+    # test <- readRDS("D:/drfz/Good2018/Rdata/BCR/BCR_Training_full_quadrant_absRange_cof0.2.rds")
 
     test.df <- test[34:37, ]
     rownames(test.df) <- rownames(test)[34:37]

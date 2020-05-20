@@ -375,11 +375,11 @@ while (it.total < sampling.size) {
   #plot(cv.fit)
 
   #collect all active (!=0) coef from fited model
-  # lambda.min <- model with min cross validation error
+  # lambda.1se <- model with min cross validation error
 
-  Coefficients <- coef(cv.fit, s=cv.fit$lambda.min)
+  Coefficients <- coef(cv.fit, s=cv.fit$lambda.1se)
   Active.Index <- which(Coefficients != 0)
-  coef.value <- coef(cv.fit, s=cv.fit$lambda.min)
+  coef.value <- coef(cv.fit, s=cv.fit$lambda.1se)
   all.coef.value <- c(all.coef.value, coef.value)
   variabl.count <- c(variabl.count, length(Active.Index))
   printf("%s PRI features chosen.", length(Active.Index))
@@ -437,14 +437,14 @@ printf("Cross validation error: %s", min.cvm)
 #print("op.fit:")
 #print(op.fit)
 #print("#####################################")
-#print("lambda.min for cv.fit:")
-#print(cv.fit$lambda.min)
+#print("lambda.1se for cv.fit:")
+#print(cv.fit$lambda.1se)
 #sink()
 #######
 
 
-p.training <- predict(op.fit, newx = df.training[, -c(1:3)], s="lambda.min", type="response")
-p.validation <- predict(op.fit, newx = df.validation[, -c(1:3)], s="lambda.min", type="response")
+p.training <- predict(op.fit, newx = df.training[, -c(1:3)], s="lambda.1se", type="response")
+p.validation <- predict(op.fit, newx = df.validation[, -c(1:3)], s="lambda.1se", type="response")
 
 #calculat threshold for cutoff
 # "low Risk" < treshold > "high risk"

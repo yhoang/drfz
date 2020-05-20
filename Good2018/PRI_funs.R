@@ -454,8 +454,8 @@ fcs$calc_triplot_quadrant <- function (
       }
       min.bin.x <- seq.bin.x[min.bin.x]
 
-      mean.bin.x <- prod.cutoff[1]
-      mean.bin.y <- prod.cutoff[2]
+      mean.bin.x <- (min.bin.x + max.bin.x) / 2
+      mean.bin.y <- (min.bin.y + max.bin.y) / 2
 
       ### make NEW bin construct with NEW minimum and maximum x/y where bins are displayed
       fX <- cut(temp.data[,  1], breaks=seq(min.bin.x, max.bin.x, by=size.bin), include.lowest=TRUE, dig.lab=5)

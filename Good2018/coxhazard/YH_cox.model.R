@@ -17,7 +17,7 @@ options(max.print = 100)
 working.station <- "YH"
 conditional <- FALSE
 project.id  <- 2
-sub.sample.name <- "func"
+sub.sample.name <- "func_plus3"
 set.alpha <- 1
 sampling.size <- 100
 cluster.size <- 3
@@ -83,8 +83,8 @@ validation.set <- cohort[which(cohort$Cohort == "Validation"), 1:6]
 total.set <- bind_rows(training.set, validation.set)
 
 ### ---------- load PRI features as RDS
-df.training <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_", sub.sample.name, "_quadrant_absRange_", condi, "cof0.2.rds"))
-df.validation <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_", sub.sample.name, "_quadrant_absRange_", condi, "cof0.2.rds"))
+df.training <- as.data.frame(readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_", sub.sample.name, "_quadrant_absRange_", condi, "cof0.2.rds")))
+df.validation <- as.data.frame(readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_", sub.sample.name, "_quadrant_absRange_", condi, "cof0.2.rds")))
 
 
 #safe rownames ("patien ID")
@@ -505,7 +505,6 @@ heatmap(t(as.matrix(df.head[, -1])), scale = "none", Colv = NA, ColSideColors = 
 dev.off()
 
 ########################################################################
-
 #create kaplan-meier - survival Kurve
 time <- c(df.training[, 1], df.validation[, 1])
 status <- c(df.training[, 2], df.validation[, 2])
