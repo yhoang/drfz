@@ -13,7 +13,7 @@ options(max.print = 100)
 ### ----------- initiate
 # cofactor      1, 0.2, 0.1 [so far at 0.2]
 # mincells      2,5,10,20 [so far at 5]
-# stat.id       1:4 [absRange, variance, freq_green, mean]
+# stat.id       1:4 [absRange, variance, freq.green, mean]
 # cluster.size  1:12, detect with detectCores()
 # dataset.id    1:5 for Basal, BCR, IL7, Pervanadate, TSLP
 # subgroup      "Validation", "Training"
@@ -22,14 +22,14 @@ options(max.print = 100)
 # check.cutoffs TRUE/FALSE, check if cutoffs are set in all files
 cofactor <- 0.2
 mincells <- 5
-stat.id <- 1
-cluster.size <- 5
+cluster.size <- 1
 working.station = "YH"
-dataset.id <- 1
+dataset.id <- 5
 subgroup <- "Training"
 # subgroup <- "Validation"
 subset <- "full"
 subject <- "quadrant"
+stat.id <- 1
 comment <- "autoSec"
 check.cutoffs <- FALSE
 ### set paths
@@ -37,7 +37,7 @@ folder.path <- file.path("D:", "drfz", "Good2018")
 db.path <- file.path("D:", "DB")
 ################
 
-
+# for (dataset.id in 1:5) {
 
 
 ### --------- load libraries
@@ -58,7 +58,7 @@ printf <- function(...) invisible(print(sprintf(...)))
 setwd(folder.path)
 dataset.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 dataset.name.long <- c("Basal", "BCR-Crosslink", "IL-7", "Pervanadate", "TSLP")
-stat.info <- c("absRange", "variance", "freq_green", "mean")
+stat.info <- c("absRange", "variance", "freq.green", "mean")
 today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 ### metatable file
@@ -117,7 +117,7 @@ data.table.name <- sprintf("%s/Rdata/%s/%s_%s_df_cof%s.rds", folder.path, datase
 # dataframe name RDS - file
 quad.table.name <- sprintf("%s/Rdata/%s/%s_%s_%s_%s_%s_%s.cof%s_%s.rds", folder.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup, subset, subject, stat.info[stat.id], comment, cofactor, today)
 # log file
-logFile <- sprintf("%s/log/2_create_PRI_%s_%s_%s_%s.log",folder.path,  subject, dataset.name[dataset.id], subgroup, today)
+logFile <- sprintf("%s/log/2_create_PRI_%s_%s_%s_%s.log", folder.path,  subject, dataset.name[dataset.id], subgroup, today)
 ################
 
 ### load matrix temp.data.all
@@ -144,10 +144,8 @@ byrow <- TRUE
 ), stringsAsFactors <- FALSE)
 quad.sample_id <- vector()
 
-if (cluster.size > 1) {
-    cl <- makeCluster(cluster.size)
-    registerDoParallel(cl)
-}
+cl <- makeCluster(cluster.size)
+registerDoParallel(cl)
 
 ptm <- proc.time()
 for (i in 1:nrow(sub.set)) {
@@ -278,5 +276,5 @@ if (FALSE) {
 
 
 }
-
-if (cluster.size > 1) stopCluster(cl)
+stopCluster(cl)
+# }

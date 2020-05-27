@@ -8,16 +8,18 @@ options(max.print = 100)
 
 ### ---------- input
 # working.station   FL, YH; different path settings
-# project.id        1:5; for Basal, BCR, IL7, Pervanadate, TSLP
-# sub.sample.name   func, func_plus3, func_plus6; different marker combinations
+# dataset.id        1:5; for Basal, BCR, IL7, Pervanadate, TSLP
+# sub.sample.name   func, func3, func6; different marker combinations
 
-working.station <- "FL"
+# working.station <- "FL"
 working.station <- "YH"
 
-sub.sample.name <- "func"
-project.id <- 2
-Rdata.demo <- "part1+2"
-
+initdate <- "YH200526"
+sub.sample.name <- "func6"
+dataset.id <- 4
+comment.train <- "autoSec.cof0.2"
+comment.valid <- comment.train
+comment.out <- comment.train
 
 if (working.station == "FL") {
     Rdata.path <- file.path("", "home", "felix", "AG_Baumgrass", "Scripts", "Pri", "Pri_good_established", "Rds")
@@ -26,19 +28,19 @@ if (working.station == "FL") {
     Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata")
     Text.path <- file.path("D:", "drfz", "Good2018", "tables")
 }
+
 #a useful print function
 printf <- function(...) invisible(print(sprintf(...)))
 project.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 
 
 # Input training and validation sets from which markers not in sub sample are to be removed
-df.training.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Training_full_quadrant_", Rdata.demo, "_absRange_cof0.2.rds"))
-df.validation.full <- readRDS(paste0(Rdata.path, "/", project.name[project.id], "/", project.name[project.id], "_Validation_full_quadrant_absRange_cof0.2.rds"))
+df.training.full <- readRDS(paste0(Rdata.path, "/", project.name[dataset.id], "/", project.name[dataset.id], "_Training_full_quadrant_absRange_", comment.train, "_", initdate, ".rds"))
+df.validation.full <- readRDS(paste0(Rdata.path, "/", project.name[dataset.id], "/", project.name[dataset.id], "_Validation_full_quadrant_absRange_", comment.valid, "_", initdate, ".rds"))
 
 # define output path and filename
-outfile.training <- paste0(Rdata.path, "/", project.name[project.id], "/", Rdata.demo, "/", project.name[project.id], "_Training_", sub.sample.name, "_quadrant_", Rdata.demo, "_absRange_cof0.2.rds")
-outfile.validation <- paste0(Rdata.path, "/", project.name[project.id], "/", Rdata.demo, "/", project.name[project.id], "_Validation_", sub.sample.name, "_quadrant_absRange_cof0.2.rds")
-
+outfile.training <- paste0(Rdata.path, "/", project.name[dataset.id], "/", project.name[dataset.id], "_Training_", sub.sample.name, "_quadrant_absRange_", comment.out, "_", initdate, ".rds")
+outfile.validation <- paste0(Rdata.path, "/", project.name[dataset.id], "/", project.name[dataset.id], "_Validation_", sub.sample.name, "_quadrant_absRange_", comment.out, "_", initdate, ".rds")
 
 
 
@@ -76,6 +78,7 @@ names.df.training <- names(df.training.full)
 names.df.validation <- names(df.validation.full)
 
 if (TRUE) {
+    ### test if all markers are present in full and subsample
     strings <- unlist(strsplit(names.df.training, "[.]"))
     strings.tab <- table(strings)
     strings.tab <- strings.tab[-which(names(strings.tab) %in% c("absRange", "Q1", "Q2", "Q3", "Q4"))]
@@ -90,7 +93,7 @@ if (TRUE) {
 print("#### Working on training set ####")
 for (i in 1:length(markers.notfunc)) {
     # index pos of markers to be removed
-    printf("%st marker selected to be removed: %s", i, markers.notfunc[i])
+    printf("%st/%s marker selected to be removed: %s", i, length(markers.notfunc), markers.notfunc[i])
     ind.train <- grep(paste0(markers.notfunc[i], "\\."), names.df.training)
     
     # only execute if to removed markers are still in the dataframe
@@ -109,7 +112,7 @@ printf("PRI features left: %s", ncol(df.training.func))
 print("#### Working on validation set ####")
 for (i in 1:length(markers.notfunc)) {
     # index pos of markers to be removed
-    printf("%st marker selected to be removed: %s", i, markers.notfunc[i])
+    printf("%st/%s marker selected to be removed: %s", i, length(markers.notfunc), markers.notfunc[i])
     ind.val <- grep(paste0(markers.notfunc[i], "\\."), names.df.validation)
     
     # only execute if to removed markers are still in the dataframe
