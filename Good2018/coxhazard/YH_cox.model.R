@@ -6,22 +6,22 @@
 # conditional   TRUE/FALSE, if apply Ria's conditions
 # dataset.id    1:5, for Basal, BCR, IL7, Pervanadate, TSLP
 # subgroup      "Training", "Validation", "Total"
-# subset        func, func_plus3, func_plus6; different marker combinations
+# subset.id     1:4 for func, func3, func6; different marker combinations
+# subject.in.id 1:13 for "df", "quadrant", "ROC", "AUC", "iAUC", "CompV", "CompT", "CompTotal", "Variables", "Heat", "CompAll", "KM", "Thresholds"
 # set.alpha     0:1, set alpha which was found to have lowest error rate, see find_alpha.R
 # sampling.size 1:10000, number of CV iterations
 # cluster.size  1:12, find out maximum cluster size with detectCores()
 working.station <- "YH"
-date <- "YH200526"
+initdate <- "YH200526"
 dataset.id <- 1
-subgroup <- c("Training", "Validation", "Total")
-subset <- "func6"
-stat.id <- 1
+subset.id <- 4
+subject.in.id <- 2
+feature.id <- 1
 comment.in <- "autoSec.cof0.2"
-comment.out <- comment.in
 set.alpha <- 1
 sampling.size <- 20
 cofactor <- 0.2
-cluster.size <- 1
+cluster.size <- 3
 conditional <- FALSE
 
 ### Parameters 
@@ -34,9 +34,10 @@ selected.thresh <- 1
 ### Output activated?
 ## generate output that doesnt change in the model (collection of ROC values, ROC curve, variables, heat map)
 ## generally only apply once
-output.model <- TRUE
+output.model <- FALSE
 ## generate output for different selected thresholds (threshold selected + info, AUC)
-output.thresholds <- TRUE
+output.thresholds <- FALSE
+comment.out <- sprintf("%s.FP%s.SENS%s.Thresh%s", comment.in, FP.value, SENS.value, selected.thresh)
 #############################################################
 
 
@@ -44,25 +45,16 @@ output.thresholds <- TRUE
 
 
 
-### - - - - - - - - - -  load R packages
+### - - - - - - - - - -  load R packages and scripts
 librarys <- c("survival", "glmnet", "readxl", "dplyr", "doParallel", "xlsx", "survminer", "pROC", "stringr")
 #install.packages(librarys, lib = "C:/Program Files/R/R-3.6.1/library")
 lapply(librarys, require, character.only = TRUE)
 #printfunktion
 #a useful print function
 printf <- function(...) invisible(print(sprintf(...)))
+source(file.path("D:", "drfz", "Good2018", "coxhazard", "YH_func_naming.R"))
+source(file.path("D:", "drfz", "Good2018", "coxhazard", "YH_load_patientdata.R"))
 
-
-
-
-dataset.name <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
-stat.info <- c("absRange", "variance", "freq.green", "mean")
-today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
-if (!conditional) {
-    condi <- ""
-} else {
-  condi <- "1.1"
-}
 
 ### set path automatically
 if (working.station == "FL") {
@@ -72,100 +64,46 @@ if (working.station == "FL") {
     Output.path <- file.path("", "home", "felix", "AG_Baumgrass", "Results", "Good_BCR", "NoCond")
 } else if (working.station == "YH") {
     Project.path <- file.path("D:", "drfz", "Good2018")
-    Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata")
+    Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata", dataset[dataset.id])
     Text.path <- Cohort.path <- file.path("D:", "drfz", "Good2018", "tables")
-    Output.path <- file.path(Project.path, "coxhazard", dataset.name[dataset.id], subset)
+    Output.path <- file.path(Project.path, "coxhazard", dataset[dataset.id], subset[subset.id])
 }
 
 
 ######## INPUT FILES #####################
 # patient data 
 patient.data.path <- file.path(Text.path, "patient_cohort.xlsx")
-
-subject.input <- "quadrant"
-training.data.path <- sprintf("%s/%s/%s_%s_%s_%s_%s_%s_%s.rds", Rdata.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup[1], subset, subject.input, stat.info[stat.id], comment.in, initdate)
-
-validation.data.path <- sprintf("%s/%s/%s_%s_%s_%s_%s_%s_%s.rds", Rdata.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup[2], subset, subject.input, stat.info[stat.id], comment.in, initdate)
-
+# subgroup <- c("Training", "Validation", "Total")
+training.data.path <- sprintf("%s/%s.rds", Rdata.path, input_filenaming(1))
+validation.data.path <- sprintf("%s/%s.rds", Rdata.path, input_filenaming(2))
 # total data as rds (if it does not exist a new will one be created at path location)
-total.data.path <- sprintf("%s/%s/%s_%s_%s_%s_%s_%s_%s.rds", Rdata.path, dataset.name[dataset.id], dataset.name[dataset.id], subgroup[3], subset, subject.input, stat.info[stat.id], comment.in, initdate)
+total.data.path <- sprintf("%s/%s.rds", Rdata.path, input_filenaming(3))
 ##########################
 
 
 ######## OUTPUT FILES #####################
 ### create folder first
 dir.create(Output.path, showWarnings = FALSE)
-### output legend for differing outputs: filename_FP.value_SENS.value_threshold.selected_date
+### subject = c("df", "quadrant", "ROC", "AUC", "iAUC", "Comp.Val", "Comp.Train", "Comp.Total", "Variables", "Heat", "Comp.Error", "KM", "Thresholds")
 # ROC / AUC Curve pdf
-subject.output <- "ROC"
-roc.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-subject.output <- "AUC"
-auc.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-
+roc.pdf.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(3))
+auc.pdf.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(4))
+iauc.pdf.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(5))
 # comparisons of validation, training and total xlsx
-subject.output <- "Compare.Val"
-comp.val.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf",  Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-subject.output <- "Compare.Train"
-comp.train.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf",  Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-subject.output <- "Compare.Total"
-comp.total.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-
+comp.val.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(6))
+comp.train.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(7))
+comp.total.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(8))
 #### variables xlsx
-subject.output <- "Variables"
-variables.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.xlsx", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
+variables.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(9))
 # heatmap pdf
-subject.output <- "Heatmap"
-heat.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
+heat.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(10))
+# comparisons of Sensitivity, specificity and FP-rate to associated thresholds
+comp.error.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(11))
 # kaplan-meier curve
-subject.output <- "Kaplan-Meier"
-kaplan.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.pdf", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-
+kaplan.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(12))
 # thresholds txt
-subject.output <- "Thresholds"
-thresholds.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.txt", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-
-# comparisons of SENS, FP - rate and associated thresholds
-subject.output <- "Compare.Error"
-comp.error.path <- sprintf("%s/%s_%s_%s_%s_%s.FP%s.SENS%s.Thresh%s_%s.txt", Output.path, dataset.name[dataset.id], subset, subject.output, stat.info[stat.id], comment.out, FP.value, SENS.value, selected.thresh, today)
-##########################
-
-
-
-
-
-
-#loading patient data from excel
-patient_data <- read_excel(patient.data.path)
-#View(patient_data)
-
-###### PREPARE patient data #####################
-#set columstype from patien data str to numeric values
-#colums with numeric value : Age at Diagnosis, WBC Count, Date of Diagnosis, Time to Relapse(Day), CCR (Day) 
-patient_data$`Time to Relapse (Days)` <- as.numeric(patient_data$`Time to Relapse (Days)`)
-patient_data$`CCR (Days)` <- as.numeric(patient_data$`CCR (Days)`)
-patient_data$`Time to Relapse (Days)`[is.na(patient_data$`Time to Relapse (Days)`)] <- 0
-patient_data$`CCR (Days)`[is.na(patient_data$`CCR (Days)`)] <- 0
-
-#new column "Survival Time (Day)""
-patient_data$`Survival Time (Day)` <- patient_data$`Time to Relapse (Days)` + patient_data$`CCR (Days)`
-
-#yes2 == yes
-patient_data$`Relapse Status`[patient_data$`Relapse Status` == "Yes2"] <- "Yes"
-
-#Set DDPR Status to nuermic binary values
-patient_data$`DDPR Risk`[patient_data$`DDPR Risk` == "Low"] <- 0
-patient_data$`DDPR Risk`[patient_data$`DDPR Risk` == "High"] <- 1
-
-#reduce patien data to necessary colums
-cohort=patient_data[, c(1, 11, 8, 16, 15, 17)]
-
-#divide cohort into training and validation set
-training.set=cohort[which(cohort$Cohort == "Training"), 1:6]
-validation.set=cohort[which(cohort$Cohort == "Validation"), 1:6]
-
-#bind training and validation set to totalset
-total.set <- bind_rows(training.set, validation.set)
-#################################################
+thresholds.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(13))
+################################
 
 
 #safe triplot rds file as df. for training and validation set
@@ -305,42 +243,33 @@ registerDoParallel(cl)
 
 timeStart <- Sys.time()
 ptm <- proc.time()
-printf("###Start %s.###", timeStart)
+printf("### Start %s on dataset=%s and subset=%s ###", timeStart, dataset[dataset.id], subset[subset.id])
 
 while (it.total < sampling.size) {
   it.total <- it.total + 1 
 
   set.seed(seed.vec[it.total])
 
-  #set folds for cross validation manual because of imbalance data
-  #set folds that 1 fold contains at least 1 relaps
-  # result: 4 folds with 8 patients (at least 2 relaps)
-  #fold.id for condition 1.1
-  #create fold values
-  #null.id <- one.id= vector()
-  #fold.id <- rep(0, nrow(df.training))
-  #one.id <- rep(sample(1:4), 3)
-  #length(null.id)
-  #null.id <- rep(sample(1:4), 5)
-  #length(one.id)
-  #it.set <- it.null <- it.one <- 1
-
-  ###### fold.id for no condidion
-  #create fold values
-  null.id <- one.id <- vector()
+  ### create fold values
+  # Basal has 13 relapsed and 31 relapse free patients
+  # set folds for cross validation manual because of imbalance data
+  # set folds that 1 fold contains at least 3 relapsed patients
+  # num.zero <- table(df.training[, 2])[1]
+  # num.one <- table(df.training[, 2])[1]
+  zero.id <- one.id <- vector()
   fold.id <- rep(0, nrow(df.training))
   one.id <- c(rep(sample(1:4), 3), 3)
-  null.id <- rep(sample(1:4), 8)
+  zero.id <- rep(sample(1:4), 8)
   length(one.id)
   it.set <- it.null <- it.one <- 1
 
-  #create 4 folds with at least 3 relapse patients
+  #create 4 folds with at least 3 relapsed patients
   while (it.set < nrow(df.training) + 1){
       if (df.training[it.set, 2] == 0) {
       # if sample relapse status is false / 0
-        fold.id[it.set] <- null.id[it.null]
+        fold.id[it.set] <- zero.id[it.null]
         it.null <- it.null + 1
-    } else{
+    } else {
       fold.id[it.set] <- one.id[it.one]
       it.one <- it.one  + 1
     }
@@ -352,13 +281,13 @@ while (it.total < sampling.size) {
                       Surv(df.training[, 1], df.training[, 2]), 
                       family = "cox", 
                       alpha = set.alpha, 
-                      foldid = fold.id)#, 
-                      #parallel = TRUE)
+                      foldid = fold.id, 
+                      parallel = TRUE)
   #plot(cv.fit)
 
-  #collect all active (!=0) coef from fited model
-  # lambda.1se <- model with min cross validation error
-
+  ### collect all active (!=0) coef from fited model
+  # lambda.min <- model with min cross validation error
+  # lambda.1se <- model with min cross validation error + 1 standard error
   Coefficients <- coef(cv.fit, s=cv.fit$lambda.1se)
   Active.Index <- which(Coefficients != 0)
   coef.value <- coef(cv.fit, s=cv.fit$lambda.1se)
@@ -367,11 +296,11 @@ while (it.total < sampling.size) {
   printf("%s PRI features chosen.", length(Active.Index))
   tmp <- min(cv.fit$cvm)
 
-  #collect best model (model with min cross validation error) 
-  #safe best model as op.fit
-  #safe active coef 
-
-  if (min.cvm > tmp){
+  ### collect best model (model with min cross validation error) 
+  # if variabl.count is not empty!
+  # safe best model as op.fit
+  # safe active coef
+  if ((min.cvm > tmp) & (length(Active.Index) > 0)){
     min.cvm <- tmp
     op.fit <- cv.fit
     op.variabl.count <- length(Active.Index)
@@ -391,58 +320,25 @@ stopCluster(cl)
 
 
 print(table(variabl.count))
-printf("Bestes Model mit:%s", op.variabl.count)
+printf("Best model >0: %s features", op.variabl.count)
 printf("Cross validation error: %s", min.cvm)
 
 #prediction for training and validation set based on op.fit
 #prediction for type cox model = relativ risk (RR)
-
-
-####### saving output to txt to check on df.training and df.validation
-#sink("df.training_validation - output.txt")
-#print("training df")
-#print("cols")
-#print(ncol(df.training[,  - c(1:3)]))
-#print("rows")
-#print(nrow(df.training[,  - c(1:3)]))
-#print("cols 1 - 3")
-#print(df.training[, c(1:3)])
-#print("#####################################")
-#printf("size validation df")
-#print("cols")
-#print(ncol(df.validation[,  - c(1:3)]))
-#print("rows")
-#print(nrow(df.validation[,  - c(1:3)]))
-#print("cols 1 - 3")
-#print(df.validation[, c(1:3)])
-#print("#####################################")
-#print("op.fit:")
-#print(op.fit)
-#print("#####################################")
-#print("lambda.1se for cv.fit:")
-#print(cv.fit$lambda.1se)
-#sink()
-#######
-
-
 p.training <- predict(op.fit, newx = df.training[, -c(1:3)], s="lambda.1se", type="response")
 p.validation <- predict(op.fit, newx = df.validation[, -c(1:3)], s="lambda.1se", type="response")
 
 #calculat threshold for cutoff
 # "low Risk" < treshold > "high risk"
 #scale RR between 0 -> 1
-
 scale.prediction <- (p.training - min(0)) / (max(p.training) - min(0))
 scale.prediction[which(scale.prediction < 0)] <- 0 
 
-
 #performance test for set of thresholds
-
 threshold <- seq(0, 1, 0.01)
 predictions.roc <- data.frame()
 
 #safe all prediction cutoffs as df  
-
 for (it in 1:length(threshold)){
   newline <- findInterval(scale.prediction, threshold[it])
   predictions.roc <- bind_cols(as.data.frame(newline), predictions.roc)
@@ -473,30 +369,30 @@ for (i in 1:length(threshold)){
 
 #safe  ROC plot as pdf
 if (output.model == TRUE){
-  pdf(roc.path)
-  par(mfrow=c(2, 2), pty = "s")
-#plot Roc Kurve
-  plot(all.FP.rate, all.sens, type = "l", ylab = "Sensitivity", 
-  xlab = "False positiv Rate", ylim = c(0, 1), xlim = c(0, 1), main = "ROC Kurv")
+  pdf(roc.pdf.path)
+  par(mgp = c(2, 0.5, 0), pty = "s", mar = c(4, 4, 3, 1), cex.lab=1.2)
+  #plot Roc Kurve
+  plot(all.FP.rate, all.sens, type = "l", ylab = "TP Rate (Sensitivity)", 
+  xlab = "FP Rate", ylim = c(0, 1), xlim = c(0, 1), main = "ROC Curve")
   dev.off()
 }
 
 ###########################################################################
 # #treshold by log - rang test. find "optimal" p - value for log rank
-# p.value <- c()
-# for(i in 1:length(names(predictions.roc))){
-#   df.new <- data.frame(df.training[, 1], df.training[, 2], predictions.roc[, i])
-#   names(df.new)[1] <- "TIME"
-#   names(df.new)[2] <- "Status"
-#   names(df.new)[3] <- "PREDICTION"
-#   km.type=survfit(Surv(df.new$TIME, df.new$Status) ~ df.new$PREDICTION, 
-#                   data = df.new, 
-#                   type="kaplan-meier")
-#   tmp <- surv_pvalue(km.type, method = "1")$pval
-#   p.value <- c(p.value, tmp)
-# }
-# p.value[which(is.na(p.value) ==  TRUE)] <- 1
-# op.thresh <- threshold[which(p.value == min(p.value))[1]]
+p.value <- c()
+for (i in 1:length(names(predictions.roc))){
+  df.new <- data.frame(df.training[, 1], df.training[, 2], predictions.roc[, i])
+  names(df.new)[1] <- "TIME"
+  names(df.new)[2] <- "Status"
+  names(df.new)[3] <- "PREDICTION"
+  km.type=survfit(Surv(df.new$TIME, df.new$Status) ~ df.new$PREDICTION, 
+                  data = df.new, 
+                  type="kaplan-meier")
+  tmp <- surv_pvalue(km.type, method = "1")$pval
+  p.value <- c(p.value, tmp)
+}
+p.value[which(is.na(p.value) ==  TRUE)] <- 1
+op.thresh <- threshold[which(p.value == min(p.value))[1]]
 ##########################################################################
 
 
@@ -515,7 +411,6 @@ if (output.model == TRUE){
 # temp <- which(all.sens[which(all.FP.rate == FP.value)] <= SENS.value)[1]
 # op.thresh <- which(all.sens == all.sens[which(all.FP.rate == FP.value)][temp])
 # op.thresholds <- op.thresh
-
 
 #sens = 1 and FP lowest
 sens.idx <- which(all.sens == SENS.value)
@@ -607,15 +502,26 @@ if (output.thresholds == TRUE){
   write.xlsx(vergleich.total, comp_total.path)
 }
 
+## saving threshold data in txt
+if (output.thresholds == TRUE){
+  sink(file = thresholds_path)
+  printf("Selected Parameters for SENS >= %s and alpha = %s", FP.value, SENS.value, alpha.value)
+  printf("Possible thresholds for this configuration: %s", op.thresholds)
+  printf("Specifically selected Threshold for this configuration: %s at position: %s", op.thresholds[selected.thresh] * max(p.training), selected.thresh)
+  printf("RR for this threshold: %s", op.thresh * max(p.training))
+  printf("AUC Value: %s", auc(roc(vergleich.total[, 2], vergleich.total[, 5])))
+  sink()
+}
 ##############################################################################
 #AUC
 if (output.thresholds == TRUE){
-  pdf(auc.path)
+  pdf(auc.pdf.path)
   plot(roc(vergleich.total[, 2], vergleich.total[, 5]))
   dev.off()
 }
 print(auc(roc(vergleich.total[, 2], vergleich.total[, 5])))
 
+dev.off()
 
 ##############################################################################
 #get active coeffizienten !!
@@ -639,6 +545,20 @@ while (i < length(all.activ.names)){
   modus= c(modus, all.activ.names.split[[i]][4])
   quat <- c(quat, all.activ.names.split[[i]][5])
 }
+
+########################################################################
+# create iAUC
+
+if (output.thresholds == TRUE){
+  pdf(iauc.pdf.path)
+  iAUC = AUC.uno(Surv(df.training[, 1], df.training[, 2]), Surv(df.validation[, 1], df.validation[, 2]), p.validation, times=seq(10, 1000, 10),  savesensspec=TRUE)
+  names(iAUC)
+  iAUC$iauc
+  plot(iAUC)
+  dev.off()
+}
+
+
 
 #safe coef names and values for op.fit as excel
 df.training <- as.data.frame(df.training)
@@ -682,8 +602,8 @@ result.data <- data.frame(all.right.index, x, y, z, modus, quat,
                          new.head)
 names(result.data)[10] <- "Var(AbsRange) Relapsefree"
 names(result.data)[9] <- "Mean(AbsRange) Relapsefree"
-names(result.data)[8] <- "Var(AbsRange) Relapse"
-names(result.data)[7] <- "Mean(AbsRange) Relapse"
+names(result.data)[8] <- "Var(AbsRange) Relapsed"
+names(result.data)[7] <- "Mean(AbsRange) Relapsed"
 names(result.data)[6] <- "Quadrant"
 names(result.data)[5] <- "Modus"
 names(result.data)[4] <- "Z Variable"
@@ -728,3 +648,5 @@ if (output.model == TRUE){
   ggsurvplot(km.type, conf.int = TRUE, legend.labs = c("low Risk", "high Risk"), ggtheme = theme_minimal(), pval = TRUE, pval.method = TRUE)
   ggsave(kaplan.path)
 }
+
+printf("AUC Value: %s", auc(roc(vergleich.total[, 2], vergleich.total[, 5])))
