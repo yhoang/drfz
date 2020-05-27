@@ -30,7 +30,7 @@ patient_data$`Survival Time (Day)` <- patient_data$`Time to Relapse (Days)`+pati
 patient_data$`Relapse Status`[patient_data$`Relapse Status`=="Yes2"]<-"Yes"
 
 #Training/Validation Set
-#nur nötige klinische colum aus den patienten daten
+#nur nï¿½tige klinische colum aus den patienten daten
 cohort=patient_data[,c(1,2,3,11,15,17)]
 
 
@@ -52,7 +52,7 @@ rownames(df.total)=c(rownames(df.training),rownames(df.validation))
 
 #View(df.total)
 #von 60 Patienet 54 Training/Validation ,
-#1 validation, 12 Training erfüllen nicht condition 1.1
+#1 validation, 12 Training erfï¿½llen nicht condition 1.1
 #colum for prediction variable in ds
 typeColNum=1
 
@@ -97,7 +97,7 @@ df.validation=bind_cols(as.data.frame(survival),df.validation)
 names(df.validation)[typeColNum] = "Survivaltime (Day)"
 
 
-#model benötigt eingabe als matrix der variablen
+#model benï¿½tigt eingabe als matrix der variablen
 df.training=as.matrix(df.training)
 df.validation=as.matrix(df.validation)
 
@@ -140,7 +140,7 @@ if (any(is.na(df.validation))) {
 }
 
 
-#erstellen von surv.Obj , nötig für cox model
+#erstellen von surv.Obj , nï¿½tig fï¿½r cox model
 sur_obj_training = Surv(df.training[,1],df.training[,2])
 
 #initialisierung der alpha suche im training
