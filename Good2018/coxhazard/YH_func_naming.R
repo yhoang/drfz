@@ -4,7 +4,8 @@ dataset <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 feature <- c("absRange", "variance", "freq.green", "mean")
 subgroup <- c("Training", "Validation", "Total")
 subset <- c("full", "func", "func3", "func6")
-subject = c("df", "quadrant", "ROC", "AUC", "iAUC", "Comp.Val", "Comp.Train", "Comp.Total", "Variables", "Heat", "Comp.Error", "KM", "Thresholds")
+subject <- c("df", "quadrant", "ROC", "AUC", "iAUC", "Comp.Total", "Variables", "Heat", "Comp.Error", "KM", "Summary")
+model <- c("cox", "RF", "boosting")
 today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 
@@ -26,8 +27,9 @@ output_filenaming <- function(
   subs = subset[subset.id],
   subj = subject,
   feat = feature[feature.id],
+  mod = model[model.id],
   com = comment.out,
   init = today) {
 
-    paste(data, subs, subj[subject.var], feat, com, init, sep = "_")
+    paste(data, subs, subj[subject.var], feat, com, mod, init, sep = "_")
 }
