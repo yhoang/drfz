@@ -10,7 +10,7 @@
 # convert NaNs and NAs
 
 ### load PRI features rds file as df. for training and validation set
-printf("Loading RDS")
+printf("Loading RDS from data set: %s", dataset[dataset.id])
 df.training <- readRDS(training.data.path)
 df.validation <- readRDS(validation.data.path)
 printf("Dimensions of training and validation set: ")

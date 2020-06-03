@@ -4,8 +4,8 @@ dataset <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
 feature <- c("absRange", "variance", "freq.green", "mean")
 subgroup <- c("Training", "Validation", "Total")
 subset <- c("full", "func", "func3", "func6")
-subject <- c("df", "quadrant", "ROC", "AUC", "iAUC", "Comp.Total", "Variables", "Heat", "Comp.Error", "KM", "Summary")
-model <- c("cox", "RF", "boosting")
+subject <- c("df", "quadrant", "ROC", "AUC", "iAUC", "Comp.Total", "Variables", "Heat", "Comp.Error", "KM", "Summary", "Tree", "VarImp")
+model <- c("coxhazard", "randomforest", "boostingtree")
 today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 

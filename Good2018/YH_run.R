@@ -12,13 +12,13 @@ options(max.print = 100)
 # subset.id     1:4 for full, func, func3, func6; 
 # subject.in.id 1:13 for "df", "quadrant", "ROC", "AUC", "iAUC",  "CompTotal", "Variables", "Heat", "CompAll", "KM", "Summary"
 # feature.id    1:4 for "absRange", "variance", "freq.green", "mean"
-# model.id      1:3 for "cox", "RF", "boosting"
+# model.id      1:4 for "cox", "RF", "boosting"
 # set.alpha     0:1, set alpha which was found to have lowest error rate, see find_alpha.R
 # sampling.size 1:100, number of CV iterations
 # cluster.size  1:12, find out maximum cluster size with detectCores()
 working.station <- "YH"
 initdate <- "YH200526"
-dataset.id <- 1
+dataset.id <- 2
 subset.id <- 1
 subject.in.id <- 2
 feature.id <- 1
@@ -27,7 +27,7 @@ comment.in <- "autoSec.cof0.2"
 set.alpha <- 1
 sampling.size <- 10
 cofactor <- 0.2
-cluster.size <- 5
+cluster.size <- 3
 conditional <- FALSE
 # either randomize or spikeins
 randomize.label <- TRUE
@@ -89,7 +89,7 @@ if (working.station == "FL") {
     Project.path <- file.path("D:", "drfz", "Good2018")
     Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata", dataset[dataset.id])
     Text.path <- Cohort.path <- file.path("D:", "drfz", "Good2018", "tables")
-    Output.path <- file.path(Project.path, "coxhazard", dataset[dataset.id], subset[subset.id])
+    Output.path <- file.path(Project.path, model[model.id], dataset[dataset.id], subset[subset.id])
 }
 
 ######## INPUT FILES #####################
@@ -103,7 +103,7 @@ total.data.path <- sprintf("%s/%s.rds", Rdata.path, input_filenaming(3))
 
 ######## INITIATE OUTPUT FILES #####################
 ### create folder first
-dir.create(Output.path, showWarnings = FALSE)
+dir.create(Output.path, recursive = TRUE, showWarnings = FALSE)
 ### subject = c("df", "quadrant", "ROC", "AUC", "iAUC", "Comp.Val", "Comp.Train", "Comp.Total", "Variables", "Heat", "Comp.Error", "KM", "Summary")
 # ROC / AUC Curve pdf
 roc.pdf.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(3))
@@ -121,10 +121,14 @@ comp.SESPFP.path <- sprintf("%s/%s.xlsx", Output.path, output_filenaming(9))
 kaplan.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(10))
 # thresholds txt
 summary.path <- sprintf("%s/%s.log", Output.path, output_filenaming(11))
+# tree pdf
+tree.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(12))
+# VarImportance PDF
+varimp.path <- sprintf("%s/%s.pdf", Output.path, output_filenaming(13))
 ################################
 
 
-# set seed for reproduction 
+### set seed for reproduction 
 seed.vec <- sample(sampling.size)
 ### ------------------- load PRI features and patient meta data and preprocess
 # patient metadata 
@@ -145,7 +149,9 @@ if (model.id == 1) {
 } else if (model.id == 2) {
   source(file.path("D:", "drfz", "Good2018", "coxhazard", "YH_rf.model.R"))
 } else if (model.id == 3) {
-  source(file.path("D:", "drfz", "Good2018", "coxhazard", "YH_boosting.model.R"))
+  source(file.path("D:", "drfz", "Good2018", "coxhazard", "YH_boosttree.model.R"))
+} else if (model.id == 4) {
+  source(file.path("D:", "drfz", "Good2018", "coxhazard", "YH_rf-cox.model.R"))
 } else {
-  print("Chose model.id between 1:3 for cox, random forest or boosting tree.")
+  print("Chose model.id between 1:4 for cox, random forest, boosting tree or random forest-cox.")
 }
