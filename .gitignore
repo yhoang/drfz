@@ -8,10 +8,19 @@ Good2018/tables/Basal_TrainingSet_*.*
 Good2018/tables/patient_cohort_overview.csv
 ### logs
 Good2018/log/*.*
-### results
+### results cox-hazard
 Good2018/coxhazard/Basal/**/*.*
 Good2018/coxhazard/BCR/**/*.*
 Good2018/coxhazard/NRI.IDI/**/*.*
+### results random forest
+Good2018/randomforest/Basal/**/*.*
+### results boosting tree cox hazard
+Good2018/boostingtree/Basal/**/*.*
+Good2018/boostingtree/*.bat
+Good2018/boostingtree/*.RData
+Good2018/boostingtree/test.R
+Good2018/boostingtree/YH_model.boostingtree_rpart.R
+Good2018/boostingtree/YH_model.boostingtree_caret.R
 ### old uncommented and cleaned
 Good2018/coxhazard/20200302_cox.model_V03.R
 ### students directories
@@ -29,6 +38,10 @@ Good2018/paper/cites/Uno2011_C-statistic.pdf
 Good2018/paper/cites/Uno2013_A unified inference procedure for a class of measures to assess improvement in risk prediction systems with survival data.pdf
 Good2018/paper/cites/Wolever1985_iAUC.pdf
 ### others
+*.pdf
+.Rprofile.txt
+Good2018/*.pdf
+Good2018/YH_rf-cox.model.R
 Good2018/pngs/*.*
 Good2018/presentations/*.*
 Spitzer2017/**/*.*

@@ -3,5 +3,12 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"r.rterm.option": [
+			"--no-save",
+			"--no-restore",
+			"--max-ppsize 500000"
+		]
+	}
 }

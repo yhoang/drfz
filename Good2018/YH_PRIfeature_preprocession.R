@@ -3,11 +3,11 @@
 ### ------------------- load PRI features and patient meta data and preprocess
 ### load custom R script to load patient metadata, which covers in detail
 # loading RDS files
-# create df.total and save
 # load patient metadata and convert into numerical data
 # add column "Survival Time"
 # convert data frames as matrices
 # convert NaNs and NAs
+# create df.total and save
 
 ### load PRI features rds file as df. for training and validation set
 printf("Loading RDS from data set: %s", dataset[dataset.id])
@@ -21,28 +21,7 @@ print(dim(df.validation))
 rownames.training <- row.names(df.training)
 rownames.validation <- row.names(df.validation)
 
-#### Check if df.total already exists as RDS (binding is bottleneck)
-#### RDS with df.total will be created once if it doesnt exist and then read every run
-if (file.exists(total.data.path)) {
-  df.total <- readRDS(total.data.path)
-  printf("df.total already exists...using created RDS.")
-} else {
-  printf("df.total does not exist...creating RDS.")
-  df.total <- bind_rows(df.training, df.validation)
-  # rownames(df.total) <- c(rownames(df.training), rownames(df.validation))
-  saveRDS(df.total, file=total.data.path)
-}
-rownames(df.total) <- c(rownames.training, rownames.validation)
-
-printf("Number of patients in total: %s", nrow(df.total))
-#View(df.total)
-#total 60 patients in cohort
-#Basal no condition total 54 patients
-#Basal condition 1.1 total 41 patients
-#BCR 45 patients total, divided in 37 in training and 8 in validation
 typeColNum <- 1
-
-
 
 ### ---------------------- loading patient data from excel
 patient_data <- read_excel(patient.data.path)
@@ -183,6 +162,35 @@ if (any(is.na(df.validation))) {
     }
   }
 }
+
+#### Check if df.total already exists as RDS (binding is bottleneck)
+#### RDS with df.total will be created once if it doesnt exist and then read every run
+if (file.exists(total.data.path)) {
+  df.total <- readRDS(total.data.path)
+  printf("df.total already exists...using created RDS.")
+} else if (!randomize.label & spikeIns == 0) {
+  printf("df.total does NOT exist...creating RDS. Takes a while..")
+  require("data.table")
+  # names(df.training) <- colnames(df.training)
+  # names(df.validation) <- colnames(df.validation)
+  df1 <- as.data.table(df.training)
+  df2 <- as.data.table(df.validation)
+  df.total <- rbind(df1, df2)
+  df.total <- as.data.frame(df.total)
+  rownames(df.total) <- c(rownames(df.training), rownames(df.validation))
+  saveRDS(df.total, file=total.data.path)
+  rm(df1, df2)
+}
+rownames(df.total) <- c(rownames.training, rownames.validation)
+
+printf("Number of patients in total: %s", nrow(df.total))
+#View(df.total)
+#total 60 patients in cohort
+#Basal no condition total 54 patients
+#Basal condition 1.1 total 41 patients
+#BCR 45 patients total, divided in 37 in training and 8 in validation
+
+
 printf("Randomizing patient outcomes: %s.", randomize.label)
 printf("Introducing two spikeIn columns: %s.", spikeIns)
 print("Done preprocessing.")

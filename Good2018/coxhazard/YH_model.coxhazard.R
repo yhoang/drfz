@@ -19,7 +19,7 @@ registerDoParallel(cl)
 
 timeStart <- Sys.time()
 ptm <- proc.time()
-printf("### Start %s :: %s with on dataset=%s and subset=%s ###", timeStart, model[model.id], dataset[dataset.id], subset[subset.id])
+printf("### Start %s with %s on dataset=%s and subset=%s lambda=%s random=%s spikes=%s ###", timeStart, model[model.id], dataset[dataset.id], subset[subset.id], lambda[lambda.id], randomize.label, spikeIns)
 
 
 while (it.total < sampling.size) {
@@ -57,7 +57,7 @@ while (it.total < sampling.size) {
   ### ----------- create model with cross validation
   cv.fit <- cv.glmnet(df.training[, -c(1:3)],
                       Surv(df.training[, 1], df.training[, 2]), 
-                      family = "cox", 
+                      family = "cox",
                       alpha = set.alpha, 
                       foldid = fold.id, 
                       parallel = TRUE)
@@ -66,9 +66,14 @@ while (it.total < sampling.size) {
   ### collect all active (!=0) coef from fited model
   # lambda.min <- model with min cross validation error
   # lambda.1se <- model with min cross validation error + 1 standard error
-  Coefficients <- coef(cv.fit, s=cv.fit$lambda.1se)
+  if (lambda.id == 1) {
+    Coefficients <- coef(cv.fit, s=cv.fit$lambda.min)
+    coef.value <- coef(cv.fit, s=cv.fit$lambda.min)
+  } else {
+    Coefficients <- coef(cv.fit, s=cv.fit$lambda.1se)
+    coef.value <- coef(cv.fit, s=cv.fit$lambda.1se)
+  }
   Active.Index <- which(Coefficients != 0)
-  coef.value <- coef(cv.fit, s=cv.fit$lambda.1se)
   all.coef.value <- c(all.coef.value, coef.value)
   variabl.count <- c(variabl.count, length(Active.Index))
   printf("%s PRI features chosen.", length(Active.Index))
@@ -101,16 +106,15 @@ print(table(variabl.count))
 if (all(variabl.count == 0)) {
   sink(file = summary.path, append = TRUE)
     print(timeStart)
-    printf("Sampling size: %s", sampling.size)
+    printf("Sampling size: %s with seed ID: %s", sampling.size, seed.vec[it.total])
     print("Variable distribution in models:")
     print(table(variabl.count))
     printf("Random sampling of condition: %s", randomize.label)
     printf("Introduce Spike Ins: %s", spikeIns)
     printf("optimal p-Value search via log-rank: %s", pVal.opt)
-    print(table(variabl.count))
     print("No variables found. Stop.")
   sink()
-  stop()
+  next
 
 } else {
 
@@ -119,8 +123,14 @@ if (all(variabl.count == 0)) {
 
   #prediction for training and validation set based on op.fit
   #prediction for type cox model = relativ risk (RR)
-  pred.training <- predict(op.fit, newx = df.training[, -c(1:3)], s="lambda.1se", type="response")
-  pred.validation <- predict(op.fit, newx = df.validation[, -c(1:3)], s="lambda.1se", type="response")
+  if (lambda.id == 1) {
+    pred.training <- predict(op.fit, newx = df.training[, -c(1:3)], s="lambda.min", type="response")
+    pred.validation <- predict(op.fit, newx = df.validation[, -c(1:3)], s="lambda.min", type="response")
+  } else {
+    pred.training <- predict(op.fit, newx = df.training[, -c(1:3)], s="lambda.1se", type="response")
+    pred.validation <- predict(op.fit, newx = df.validation[, -c(1:3)], s="lambda.1se", type="response")
+  }
+
 
   ### --------------- calculat threshold for cutoff #####################
   # "low Risk" < treshold > "high risk"
@@ -227,14 +237,18 @@ if (all(variabl.count == 0)) {
   if (output.thresholds){
     sink(file = summary.path, append = TRUE)
     print(timeStart)
-    printf("Sampling size: %s", sampling.size)
+    printf("Sampling size: %s with seed ID:%s", sampling.size, seed.vec[it.total])
     print("Variable distribution in models:")
     print(table(variabl.count))
+    printf("Best model >0: %s features", op.variabl.count)
     printf("Random sampling of condition: %s", randomize.label)
     printf("Introduce Spike Ins: %s", spikeIns)
-    printf("optimal p-Value search via log-rank: %s", pVal.opt)
-    printf("Selected Parameters for FP rate <= %s and for SENS  >=  %s", FP.value, SENS.value)
-    printf("Possible thresholds for this configuration: %s", op.thresholds)
+    if (pVal.opt) {
+      printf("optimal p-Value search via log-rank: %s", pVal.opt)
+    } else {
+      printf("Selected Parameters for FP rate <= %s and for SENS  >=  %s", FP.value, SENS.value)
+      printf("Possible thresholds for this configuration: %s", op.thresholds)
+    }
     printf("Specifically selected Threshold for this configuration: %s at position: %s", op.thresholds[selected.thresh], selected.thresh)
     printf("RR for this threshold: %s", op.thresh * max(pred.training))
     sink()
@@ -425,10 +439,17 @@ if (all(variabl.count == 0)) {
   printf("iAUC Value: %s", iAUC$iauc)
 
   sink(file = summary.path, append = TRUE)
-  printf("AUC Value: %s", AUC)
+  printf("AUC Value: %#.3f", AUC)
+  printf("Err(train): %#.3f Err(val): %#.3f Err(total): %#.3f",
+    1 - auc(roc(compred.training[, 2], compred.training[, 5])),
+    1 - auc(roc(compred.validation[, 2], compred.validation[, 5])),
+    1 - AUC)
   printf("iAUC Value: %s", iAUC$iauc)
   sink()
 
 }
-
+printf("Err(train): %#.3f Err(val): %#.3f Err(total): %#.3f",
+    1 - auc(roc(compred.training[, 2], compred.training[, 5])),
+    1 - auc(roc(compred.validation[, 2], compred.validation[, 5])),
+    1 - AUC)
 printf("### Done %s :: %s with on dataset=%s and subset=%s ###", timeStart, model[model.id], dataset[dataset.id], subset[subset.id])
