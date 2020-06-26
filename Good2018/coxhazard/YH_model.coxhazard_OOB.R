@@ -34,17 +34,22 @@ glmnet.oob <- lapply( seq(1:2), function(a) {
     # set folds for cross validation manual because of imbalance data
     # set folds that 1 fold contains at least 3 relapsed patients
     fold.id <- rep(0, nrow(df.train))
+    fold.n <- 4 # 4 folds
     zero.num <- length(which(df.train[, 2] == 0))
     one.num <- length(which(df.train[, 2] == 1))
-    if ((zero.num %% 4) > 0) {
-      zero.id <- c(rep(sample(1:4), zero.num / 4), zero.num %% 4)
+    if ((zero.num %% fold.n) > 0) {
+      zero.id <- rep(sample(1:fold.n), zero.num / fold.n)
+      zero.id.mod <- sample(1 : (zero.num %% fold.n))
+      zero.id <- c(zero.id, zero.id.mod)
     } else {
-      zero.id <- rep(sample(1:4), zero.num / 4)
+      zero.id <- rep(sample(1:fold.n), zero.num / fold.n)
     }
-    if ((one.num %% 4) > 0) {
-      one.id <- c(rep(sample(1:4), one.num / 4), one.num %% 4)
+    if ((one.num %% fold.n) > 0) {
+      one.id <- rep(sample(1:fold.n), one.num / fold.n)
+      one.id.mod <- sample(1: (one.num %% fold.n))
+      one.id <- c(one.id, one.id.mod)
     } else {
-      one.id <- rep(sample(1:4), one.num / 4)
+      one.id <- rep(sample(1:fold.n), one.num / fold.n)
     }
     it.set <- it.null <- it.one <- 1
 

@@ -22,15 +22,19 @@ working.station <- "YH"
 initdate <- "YH200526"
 today <- "YH200609"
 # today <- "YH200610"
+# today <- "YH200623"
 dataset.id <- 1
-subset.id <- 1
+subset.id <- 4
 subject.in.id <- 2
 feature.id <- 1
-model.id <- 3
 model.id <- 2
+# model.id <- 2
 # comment.in <- "manSec.cof0.2"
 comment.in <- "autoSec.cof0.2"
 comment.out <- comment.in
+if (dataset.id == 6) {
+  comment.in <- comment.out <- ""
+}
 lambda.id <- 1
 set.alpha <- 1
 sampling.size <- 1
@@ -101,7 +105,7 @@ if (randomize.label && spikeIns > 0) stop("Use either randomized labels or Spike
 
 
 ### - - - - - - - - - - load R packages
-load.libraries <- c("survival", "readxl", "dplyr", "xlsx", "survminer", "pROC", "survAUC")
+load.libraries <- c("survival", "readxl", "dplyr", "tidyverse", "xlsx", "survminer", "pROC", "survAUC")
 #install.packages(load.libraries, lib = "C:/Program Files/R/R-3.6.1/library")
 lapply(load.libraries, require, character.only = TRUE)
 #a useful print function
@@ -116,10 +120,15 @@ if (working.station == "FL") {
     Project.path <- file.path("", "home", "felix", "AG_Baumgrass", "Data", "Good", "Basal_for_Felix", "Basal_for_Felix")
     Output.path <- file.path("", "home", "felix", "AG_Baumgrass", "Results", "Good_BCR", "NoCond")
 } else if (working.station == "YH") {
-    Project.path <- file.path("D:", "drfz", "Good2018")
-    Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata", dataset[dataset.id])
-    Text.path <- Cohort.path <- file.path("D:", "drfz", "Good2018", "tables")
+  Project.path <- file.path("D:", "drfz", "Good2018")
+  Rdata.path <- file.path("D:", "drfz", "Good2018", "Rdata", dataset[dataset.id])
+  Text.path <- Cohort.path <- file.path("D:", "drfz", "Good2018", "tables")
+  if (dataset.id == 6) {
+    Output.path <- file.path(Project.path, model[model.id], dataset[dataset.id])
+  } else {
     Output.path <- file.path(Project.path, model[model.id], dataset[dataset.id], subset[subset.id])
+  }
+    
 }
 
 ######## INPUT FILES #####################
@@ -170,7 +179,6 @@ patient.data.path <- file.path(Text.path, "patient_cohort.xlsx")
 # add column "Survival Time"
 # convert data frames as matrices
 # convert NaNs and NAs
-# for (i in 1:10) {
 source(file.path("D:", "drfz", "Good2018", "YH_PRIfeature_preprocession.R"))
 source(file.path("D:", "drfz", "Good2018", "YH_mem.alloc.R"))
 

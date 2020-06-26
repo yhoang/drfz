@@ -9,7 +9,7 @@
 # "C:Program Files\R\R-3.6.1\bin\R.exe" --max-ppsize 500000
 # source(file.path("D:", "drfz", "Good2018", "YH_run.R"))
 options(expressions = 5e5)
-memory.limit(size = 10000000)
+# memory.limit(size = 5000000)
 
 # install.packages("gbm")
 add.libraries <- c("gbm", "doParallel", "ggplot2")
@@ -37,7 +37,7 @@ printf("### Start %s with %s on dataset=%s comment.in=%s subset=%s random=%s spi
 ntree.val <- 100
 shrink.val <- 0.001
 
-cluster.size <- 7
+cluster.size <- 2
 cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 ptm <- proc.time()
@@ -49,7 +49,7 @@ for (oob in 1:nrow(df.total)) {
 
   if (!file.exists(model.path)) {
     gbm.cox <- vector()
-    gbm.cox <- gbm(formula = Surv(Survivaltime, RelapseStatus) ~ . - DDPRStatus,
+    gbm.cox <- gbm(formula = Surv(Survivaltime, RelapseStatus) ~ . - DDPRStatus - PatientID,
                   data = as.data.frame(df.total[-oob, ]),
                   distribution = "coxph",
                   n.trees = ntree.val,

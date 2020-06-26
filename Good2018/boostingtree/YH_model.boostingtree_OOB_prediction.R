@@ -3,13 +3,13 @@
 # Goood2018
 
 # in command
-#cd C:Program\ Files/R/R-3.6.1/bin
-#./R.exe --max-ppsize 500000
+# cd C:Program\ Files/R/R-3.6.1/bin
+# ./R.exe --max-ppsize 500000
 # or short:
 # "C:Program Files\R\R-3.6.1\bin\R.exe" --max-ppsize 500000
 # source(file.path("D:", "drfz", "Good2018", "YH_run.R"))
 options(expressions = 5e5)
-memory.limit(size = 10000000)
+# memory.limit(size = 5000000)
 
 # install.packages("gbm")
 add.libraries <- c("gbm", "doParallel", "ggplot2")
@@ -35,8 +35,12 @@ printf("### Start %s with %s on dataset=%s comment.in=%s subset=%s selected.thre
 # As each split increases the total number of nodes by 3 and number of terminal nodes by 2, the total number of nodes in the tree will be 3∗N+1 and the number of terminal nodes 2∗N+1
 ntree.val <- 100
 shrink.val <- 0.001
+status.idx <- which(colnames(df.total) == "RelapseStatus")
+ddpr.idx <- which(colnames(df.total) == "DDPRStatus")
+time.idx <- which(colnames(df.total) == "Survivaltime")
+sample.idx <- which(colnames(df.total) == "PatientID")
 
-cluster.size <- 4
+cluster.size <- 2
 cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 
@@ -44,16 +48,14 @@ registerDoParallel(cl)
 global.error.pred <- global.error.oob <- global.RMSE.training <- global.RMSE.OOB <- global.RMSE.total <- vector()
 
  # error and RMSE list
-comment.model.pred <- paste(comment.out, paste0("ntree", ntree.val), paste0
-  ("shrink", shrink.val), sep=".")
+comment.model.pred <- paste(comment.out, paste0("ntree", ntree.val), paste0("shrink", shrink.val), sep=".")
 errorlist.path <- sprintf("%s/%s.rds", Output.path, output_filenaming(17, 
     com=comment.model.pred))
 RMSElist.path <- sprintf("%s/%s.rds", Output.path, output_filenaming(18, 
     com=comment.model.pred))
 
-for (oob in 19:nrow(df.total)) {
+for (oob in 1:nrow(df.total)) {
 # for (oob in 1:1) {
-  thresh.alert <- FALSE
   local.thresh <- selected.thresh
   ###---------------- initiate output file names --------------------------###
   comment.tmp <- paste(comment.in, paste0("ntree", ntree.val), paste0("shrink", shrink.val), paste0("oob", oob), sep=".")
@@ -90,7 +92,7 @@ for (oob in 19:nrow(df.total)) {
   
     # estimates the optimal number of boosting iterations 
     best.iter <- gbm.perf(gbm.cox, method="OOB", plot.it = FALSE, oobag.curve = TRUE)  # returns out-of-bag estimated best number of trees
-    print(best.iter)
+    # print(best.iter)
 
     # using estimated best number of trees
     all.coef.value <- summary(gbm.cox, n.trees = best.iter, plotit = FALSE) 
@@ -102,7 +104,7 @@ for (oob in 19:nrow(df.total)) {
   ### predict GBM on Training
   if (!file.exists(pred.path)) {
     pred.total <- predict(gbm.cox, 
-      newdat = as.data.frame(df.total[-oob, -c(1:3)]), n.trees = best.iter)
+      newdat = as.data.frame(df.total[-oob, -c(status.idx, ddpr.idx, time.idx, sample.idx)]), n.trees = best.iter)
     saveRDS(pred.total, pred.path)
     printf("pred.total saved as %s.", pred.path)
   } else {
@@ -113,15 +115,14 @@ for (oob in 19:nrow(df.total)) {
   ### predict GBM on OOB
   if (!file.exists(pred.oob.path)) {
     pred.oob <- predict(gbm.cox, 
-      newdat = as.data.frame(df.total[oob, -c(1:3)]), n.trees = best.iter)
+      newdat = as.data.frame(df.total[oob, -c(status.idx, ddpr.idx, time.idx, sample.idx)]), n.trees = best.iter)
     saveRDS(pred.oob, pred.oob.path)
-    printf("pred.total saved as %s.", pred.oob.path)
+    printf("pred.oob saved as %s.", pred.oob.path)
   } else {
     printf("File exists already: %s", pred.oob.path)
     pred.oob <- readRDS(pred.oob.path)
   }
 
-    
   ### --------------- calculat threshold for cutoff #####################
   # "low Risk" < treshold > "high risk"
   ### scale RR between 0 -> 1
@@ -146,34 +147,35 @@ for (oob in 19:nrow(df.total)) {
   #calculate ssensitivity and false positiv rate 
   all.spec <- all.sens <- all.FP.rate <- AUC <- vector()
   for (i in 1:length(threshold)){
-    TP <- length(which(predictions.roc[, i] == 1 & df.total[-oob, 2] == 1))
-    TN <- length(which(predictions.roc[, i] == 0 & df.total[-oob, 2] == 0))
-    FP <- length(which(predictions.roc[, i] == 1 & df.total[-oob, 2] == 0))
-    FN <- length(which(predictions.roc[, i] == 0 & df.total[-oob, 2] == 1))
-    ALLP <- length(which(df.total[-oob, 2] == 1))
-    ALLN <- length(which(df.total[-oob, 2] == 0))
+    TP <- length(which(predictions.roc[, i] == 1 & df.total[-oob, status.idx] == 1))
+    TN <- length(which(predictions.roc[, i] == 0 & df.total[-oob, status.idx] == 0))
+    FP <- length(which(predictions.roc[, i] == 1 & df.total[-oob, status.idx] == 0))
+    FN <- length(which(predictions.roc[, i] == 0 & df.total[-oob, status.idx] == 1))
+    ALLP <- length(which(df.total[-oob, status.idx] == 1))
+    ALLN <- length(which(df.total[-oob, status.idx] == 0))
     SENS <- TP / ALLP
     SPEC <- TN / ALLN
     all.spec <- c(all.spec, SPEC)
     all.sens <- c(all.sens, SENS)
     FP.rate <- FP / ALLN
     all.FP.rate <- c(all.FP.rate, FP.rate)
-    # AUC <- c(AUC, auc(roc(df.total[-oob, 2], predictions.roc[, i])))
+    AUC <- c(AUC, auc(roc(unlist(df.total[-oob, status.idx]), predictions.roc[, i], quiet=TRUE)))
   }
 
 
+  thresh.alert <- FALSE
   if (pVal.opt) {
     ###########################################################################
     # #treshold by log - rang test. find "optimal" p - value for log rank
     p.value <- c()
     for (i in 1:ncol(predictions.roc)) {
       df.new <- data.frame(
-        Survivaltime = df.total[-oob, 1], 
-        RelapseStatus = df.total[-oob, 2], 
+        Survivaltime = df.total[-oob, time.idx], 
+        RelapseStatus = df.total[-oob, status.idx], 
         Prediction = predictions.roc[, i])
       
       # calculate estimate of survival curve for censored data using Kaplan-Meier 
-      km.type = survfit(
+      km.type <- survfit(
         Surv(Survivaltime, RelapseStatus) ~ Prediction,
         data = df.new,
         type = "kaplan-meier")
@@ -218,18 +220,18 @@ for (oob in 19:nrow(df.total)) {
   # prediction RR Values aprox Relapsstatus with calculates Threshold
   pred.total.class <- findInterval(scale.pred.total, op.thresh)
   pred.oob.class <- findInterval(scale.pred.oob, op.thresh)
-  CM.total <- table(pred.total.class, df.total[-oob, 2])
+  CM.total <- table(pred.total.class, unlist(df.total[-oob, status.idx]))
   # confusion matrix
   print(CM.total)
 
   ### collect error count
   error.pred <- sum(CM.total) - sum(diag(CM.total))
-  error.oob <- df.total[oob, 2] - as.numeric(as.character(pred.oob.class))
+  error.oob <- unlist(df.total[oob, status.idx]) - as.numeric(as.character(pred.oob.class))
 
   ### collect RMSE
-  RMSE.training <- sqrt(mean((scale.pred.total - df.total[-oob, 2]) ^ 2))
-  RMSE.OOB <- sqrt(mean((scale.pred.oob - df.total[oob, 2]) ^ 2))
-  RMSE.total <- sqrt(mean((c(scale.pred.total, scale.pred.oob) - c(df.total[-oob, 2], df.total[oob, 2])) ^ 2))
+  RMSE.training <- sqrt(mean((scale.pred.total - unlist(df.total[-oob, status.idx])) ^ 2))
+  RMSE.OOB <- sqrt(mean((scale.pred.oob - unlist(df.total[oob, status.idx])) ^ 2))
+  RMSE.total <- sqrt(mean((c(scale.pred.total, scale.pred.oob) - c(unlist(df.total[-oob, status.idx]), unlist(df.total[oob, status.idx]))) ^ 2))
 
   ### collect for every run
   global.error.pred <- c(global.error.pred, error.pred)
@@ -254,9 +256,9 @@ for (oob in 19:nrow(df.total)) {
       printf("Possible thresholds for this configuration: %s", paste(op.thresholds, collapse= " "))
     }
     printf("For this threshold: id=%s with RR value %s", local.thresh, op.thresh)
-    print(table(pred.total.class, df.total[-oob, 2]))
-    printf("Training prediction error=%s/%s rate=%0.3f", error.pred, sum(CM.total), (error.pred / (sum(CM.total) )) )
-    printf("OOB prediction error=%s/%s rate=%0.3f", error.oob, length(error.oob), (abs(error.oob)/length(error.oob)))
+    print(table(pred.total.class, unlist(df.total[-oob, status.idx])))
+    printf("Training prediction error=%s/%s rate=%0.3f", error.pred, sum(CM.total), (error.pred / (sum(CM.total))))
+    printf("OOB prediction error=%s/%s rate=%0.3f", error.oob, length(error.oob), (abs(error.oob) / length(error.oob)))
     printf("RMSE(training/OOB/total)=%0.3f/%0.3f/%0.3f", RMSE.training, RMSE.OOB, RMSE.total)
     print("###")
     if (oob == nrow(df.total)) {
@@ -271,8 +273,8 @@ for (oob in 19:nrow(df.total)) {
   sink()
 
   printf("Done with %s OOB=%s.", model[model.id], oob)
-  printf("Training prediction error=%s/%s rate=%0.3f", error.pred, sum(CM.total), (error.pred / (sum(CM.total) )) )
-  printf("OOB prediction error=%s/%s rate=%0.3f", error.oob, length(error.oob), (abs(error.oob)/length(error.oob)))
+  printf("Training prediction error=%s/%s rate=%0.3f", error.pred, sum(CM.total), (error.pred / (sum(CM.total))))
+  printf("OOB prediction error=%s/%s rate=%0.3f", error.oob, length(error.oob), (abs(error.oob) / length(error.oob)))
   printf("RMSE(training/OOB/total)=%0.3f/%0.3f/%0.3f", RMSE.training, RMSE.OOB, RMSE.total)
   ###########################################################################
 

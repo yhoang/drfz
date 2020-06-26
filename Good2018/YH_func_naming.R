@@ -4,7 +4,7 @@ add.libraries <- c("stringr")
 #install.packages(load.libraries, lib = "C:/Program Files/R/R-3.6.1/library")
 lapply(add.libraries, require, character.only = TRUE)
 
-dataset <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP")
+dataset <- c("Basal", "BCR", "IL7", "Pervanadate", "TSLP", "DDPR")
 feature <- c("absRange", "variance", "freq.green", "mean")
 subgroup <- c("Training", "Validation", "Total")
 subset <- c("full", "func", "func3", "func6")
@@ -25,7 +25,11 @@ input_filenaming <- function(
   feat = feature[feature.id],
   com = comment.in,
   init = initdate) {
-    paste(data, subg[subgroup.var], subs, subj, feat,  com, init, sep="_")
+    if (data == "DDPR") {
+      paste(data, sep="_")
+    } else {
+      paste(data, subg[subgroup.var], subs, subj, feat, com, init, sep="_")
+    }
 }
 
 output_filenaming <- function(
@@ -37,6 +41,10 @@ output_filenaming <- function(
   mod = model[model.id],
   com = comment.out,
   init = today) {
-
-    paste(data, subs, subj[subject.var], feat, com, mod, init, sep = "_")
+    if (data == "DDPR") {
+      paste(data, subj[subject.var], com, mod, init, sep="_")
+    }
+    else {
+      paste(data, subs, subj[subject.var], feat, com, mod, init, sep = "_")
+    }
 }
