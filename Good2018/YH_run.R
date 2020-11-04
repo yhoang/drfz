@@ -8,7 +8,7 @@ options(max.print = 100)
 ### - - - - - - - - - - input
 # working.station   FL, YH; different path settings
 # conditional     TRUE/FALSE, if apply Ria's conditions
-# dataset.id      1:5, for Basal, BCR, IL7, Pervanadate, TSLP
+# dataset.id      1:6, for Basal, BCR, IL7, Pervanadate, TSLP, DDPR
 # subset.id       1:4 for full, func, func3, func6; 
 # subject.in.id   1:13 for "df", "quadrant", "ROC", "AUC", "iAUC",  "CompTotal", "Variables", "Heat", "CompAll", "KM", "Summary"
 # feature.id      1:4 for "absRange", "variance", "freq.green", "mean"
@@ -18,8 +18,8 @@ options(max.print = 100)
 # sampling.size   1:100, number of CV iterations
 # cluster.size    1:12, find out maximum cluster size with detectCores()
 working.station <- "YH"
-# initdate <- "YH200410"
-initdate <- "YH200526"
+initdate <- "YH200410"
+# initdate <- "YH200526"
 today <- "YH200609"
 # today <- "YH200610"
 # today <- "YH200623"
@@ -27,10 +27,10 @@ dataset.id <- 1
 subset.id <- 4
 subject.in.id <- 2
 feature.id <- 1
-model.id <- 2
+model.id <- 4
 # model.id <- 2
-# comment.in <- "manSec.cof0.2"
-comment.in <- "autoSec.cof0.2"
+comment.in <- "manSec.cof0.2"
+# comment.in <- "autoSec.cof0.2"
 comment.out <- comment.in
 if (dataset.id == 6) {
   comment.in <- comment.out <- ""
@@ -49,7 +49,7 @@ spikeIns <- 0
 
 ### Parameters 
 # use optimal p-value via log rank test
-pVal.opt = FALSE
+pVal.opt <- FALSE
 # if above is FALSE, use manual SENS and FP values
 # FP <= value
 FP.value <- 0.2

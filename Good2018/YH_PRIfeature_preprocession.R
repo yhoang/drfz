@@ -195,20 +195,14 @@ if (dataset.id == 6) {
   print(dim(df.training))
   print(dim(df.validation))
 
-  #safe rownames ("Patient ID")
-  rownames.training <- row.names(df.training)
-  rownames.validation <- row.names(df.validation)
-
-
+  pat.idx.training <- match(rownames(df.training), cohort$PatientID)
+  pat.idx.validation <- match(rownames(df.validation), cohort$PatientID)
 
   #divide cohort into training and validation set
   training.set <- cohort[which(cohort$Cohort == "Training"), 1:6]
   validation.set <- cohort[which(cohort$Cohort == "Validation"), 1:6]
 
-  #bind training and validation set to totalset
-  total.set <- bind_rows(training.set, validation.set)
   #################################################
-
 
   ### -------------- preparation in training set 
   #relapse status as numeric
@@ -256,22 +250,20 @@ if (dataset.id == 6) {
     df.validation <- bind_cols(df.validation, as.data.frame(spike2)
     )
   }
-
+  
   ### add cond.training/survivaltime/age to df.training
-  df.training <- bind_cols(as.data.frame(DDPR.training), df.training)
-  colnames(df.training)[typeColNum] <- "DDPRStatus"
-  df.training <- bind_cols(as.data.frame(cond.training), df.training)
-  colnames(df.training)[typeColNum] <- "RelapseStatus"
-  df.training <- bind_cols(as.data.frame(survival.training), df.training)
-  colnames(df.training)[typeColNum] <- "Survivaltime"
-  #do same for validation set
-  df.validation <- bind_cols(as.data.frame(DDPR.validation), df.validation)
-  colnames(df.validation)[typeColNum] <- "DDPRStatus"
-  df.validation <- bind_cols(as.data.frame(cond.validation), df.validation)
-  colnames(df.validation)[typeColNum] <- "RelapseStatus"
-  df.validation <- bind_cols(as.data.frame(survival.validation), df.validation)
-  colnames(df.validation)[typeColNum] <- "Survivaltime"
+  df.training <- df.training %>%
+    add_column(PatientID = cohort$PatientID[pat.idx.training],
+               Survivaltime = cohort$Survivaltime[pat.idx.training],
+               RelapseStatus = as.numeric(cohort$RelapseStatus[pat.idx.training]),
+               DDPRStatus = cohort$DDPRStatus[pat.idx.training])
 
+  ### add cond.training/survivaltime/age to df.validation
+  df.validation <- df.validation %>%
+    add_column(PatientID = cohort$PatientID[pat.idx.validation],
+               Survivaltime = cohort$Survivaltime[pat.idx.validation],
+               RelapseStatus = as.numeric(cohort$RelapseStatus[pat.idx.validation]),
+               DDPRStatus = cohort$DDPRStatus[pat.idx.validation])
 
   ### glmnet need input matrix for model 
   # safe df as matrix
@@ -326,15 +318,14 @@ if (dataset.id == 6) {
     # names(df.validation) <- colnames(df.validation)
     df1 <- as.data.table(df.training)
     df2 <- as.data.table(df.validation)
-    df.total <- rbind(df1, df2)
+    df.total <- rbindlist(list(df1, df2))
     df.total <- as.data.frame(df.total)
-    rownames(df.total) <- c(rownames(df.training), rownames(df.validation))
+    # rownames(df.total) <- c(rownames(df.training), rownames(df.validation))
     saveRDS(df.total, file=total.data.path)
     rm(df1, df2)
   }
-  rownames(df.total) <- c(rownames.training, rownames.validation)
 
-  printf("Number of patients in total: %s", nrow(df.total))
+  printf("Dimension df.total should be 24292: %s", dim(df.total))
   #View(df.total)
   #total 60 patients in cohort
   #Basal no condition total 54 patients
@@ -361,3 +352,23 @@ df.zscore <- (df.tmp - df.mean) / df.sd
 # hist(unlist(df.zscore), xlim=c(-4,4), n=1000)
   
 print("Done preprocessing.")
+
+
+df.relapsed <- df.total %>%
+  select(RelapseStatus, Survivaltime) %>%
+  filter(RelapseStatus == 1) %>%
+  arrange(Survivaltime)
+
+df.unrelapsed <- df.total %>%
+  select(RelapseStatus, Survivaltime) %>%
+  filter(RelapseStatus == 0) %>%
+  arrange(Survivaltime)
+
+
+if (FALSE) {
+  # Change histogram plot line colors by groups
+  ggplot(df.total[, 354:355], aes(x=Survivaltime, color=as.factor(RelapseStatus))) +
+    geom_histogram(fill="white", binwidth=500, alpha=0.5, position="dodge")
+
+
+}

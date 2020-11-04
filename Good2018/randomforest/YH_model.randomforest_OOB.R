@@ -2,8 +2,8 @@
 # DRFZ 2019 - 2020
 # Goood2018
 
-add.libraries <- c("caret", "randomForest", "doParallel", "e1071", "ggplot2")
-# add.libraries <- c("randomForest", "doParallel", "ggplot2")
+# add.libraries <- c("caret", "randomForest", "doParallel", "e1071", "ggplot2")
+add.libraries <- c("randomForest", "doParallel", "ggplot2")
 lapply(add.libraries, require, character.only = TRUE)
 ### no need at OOB
 if (exists("df.training")) rm(df.training)
@@ -32,7 +32,6 @@ if (FALSE) {
   #### FIND BEST ntree/mtry
   # tuning cross-validation
   # creating stratified/balanced indices
-  # cv.folds <- createMultiFolds(df.training[, 2], k = 4, times = 3)
   cv.folds <- createMultiFolds(df.total[, 2], k = 4, times = 3)
   # creating folds 
   trainctrl <- trainControl(method = "cv", number = 4, repeats = 3, index = cv.folds, allowParallel=TRUE)
@@ -40,7 +39,7 @@ if (FALSE) {
   ### Create a Random Forest model with default parameters
   # ntree: Number of trees to grow. This should not be set to too small a number, to ensure that every input row gets predicted at least a few times.
   # mtry: Number of variables randomly sampled as candidates at each split. Note that the default values are different for classification (sqrt(p) where p is number of variables in x) and regression (p/3) 
-  # default: ntree=500, mtry=2
+  # default: ntree=500, mtry=floor(sqrt(ncol(df.total)))
 
   # initiate accuracy collection
   max.acc <- list()
@@ -174,9 +173,7 @@ stopCluster(cl)
 comment.model.pred <- paste(comment.out, paste0("ntree", ntree.val), paste0("mtry", mtry.val), sep = ".")
 errorlist.path <- sprintf("%s/%s.rds", Output.path, output_filenaming(17, 
   com=comment.model.pred))
-RMSElist.path <- sprintf("%s/%s.rds", Output.path, output_filenaming(18, 
-  com=comment.model.pred))
-global.error.pred <- global.error.oob <- global.RMSE.training <- global.RMSE.OOB <- global.RMSE.total <- vector()
+global.error.pred <- global.error.oob <- global.error.pred2 <- global.error.oob2 <- global.RMSE.training <- global.RMSE.OOB <- global.RMSE.total <- vector()
 output.thresholds <- output.model <- FALSE
 for (oob in 1:nrow(df.total)) {
   # load data
@@ -230,6 +227,8 @@ for (oob in 1:nrow(df.total)) {
   ### collect for every run
   global.error.pred <- c(global.error.pred, error.pred)
   global.error.oob <- c(global.error.oob, error.oob)
+  global.error.pred2 <- c(global.error.pred2, pred.total)
+  global.error.oob2 <- c(global.error.oob2, pred.oob[, 1])
   global.RMSE.training <- c(global.RMSE.training, RMSE.training)
   global.RMSE.OOB <- c(global.RMSE.OOB, RMSE.OOB)
   global.RMSE.total <- c(global.RMSE.total, RMSE.total)
@@ -500,14 +499,18 @@ printf("Global total prediction error=%s/%s rate=%0.3f", sum(global.error.pred) 
 print(Sys.time() - timeStart)
 
 
-RMSE <- list(
-  RMSE.training = global.RMSE.training, 
-  RMSE.OOB = global.RMSE.OOB, 
-  RMSE.total = global.RMSE.total)
-saveRDS(RMSE, RMSElist.path)
 ERROR <- list(
   error.training = global.error.pred,
   error.OOB = global.error.oob,
-  error.total = global.error.pred + abs(global.error.oob)
+  error.total = global.error.pred + abs(global.error.oob),
+  prob.training = global.error.pred2,
+  prob.oob = global.error.oob2,
+  RMSE.training = global.RMSE.training, 
+  RMSE.OOB = global.RMSE.OOB, 
+  RMSE.total = global.RMSE.total
 )
 saveRDS(ERROR, errorlist.path)
+
+RMSE.oob.zscore <- (ERROR$RMSE.OOB - mean(ERROR$RMSE.OOB)) / sd(ERROR$RMSE.OOB)
+
+hist(RMSE.oob.zscore)

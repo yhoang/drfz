@@ -12,7 +12,7 @@ subject <- c("df", "quadrant", "ROC", "AUC", "iAUC",
 "Error.Total", "Variables", "Heat", "SESP", "KM", 
 "Summary", "Model", "VarImp", "ModelComp", "PredTotal",
 "PredOOB", "ErrorList", "RMSEList")
-model <- c("coxhazard", "randomforest", "boostingtree")
+model <- c("coxhazard", "randomforest", "boostingtree", "plsRcox")
 if (!exists("today")) today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 

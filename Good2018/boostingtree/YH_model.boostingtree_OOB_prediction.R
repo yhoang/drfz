@@ -45,7 +45,7 @@ cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 
 ### ---------------- run for prediction -------------------------------- ###
-global.error.pred <- global.error.oob <- global.RMSE.training <- global.RMSE.OOB <- global.RMSE.total <- vector()
+global.error.pred <- global.error.oob <- global.error.pred2 <- global.error.oob2 <- global.RMSE.training <- global.RMSE.OOB <- global.RMSE.total <- vector()
 
  # error and RMSE list
 comment.model.pred <- paste(comment.out, paste0("ntree", ntree.val), paste0("shrink", shrink.val), sep=".")
@@ -236,6 +236,8 @@ for (oob in 1:nrow(df.total)) {
   ### collect for every run
   global.error.pred <- c(global.error.pred, error.pred)
   global.error.oob <- c(global.error.oob, error.oob)
+  global.error.pred2 <- c(global.error.pred2, pred.total)
+  global.error.oob2 <- c(global.error.oob2, pred.oob)
   global.RMSE.training <- c(global.RMSE.training, RMSE.training)
   global.RMSE.OOB <- c(global.RMSE.OOB, RMSE.OOB)
   global.RMSE.total <- c(global.RMSE.total, RMSE.total)
@@ -433,17 +435,19 @@ for (oob in 1:nrow(df.total)) {
 }
 stopCluster(cl)
 
-RMSE <- list(
-  RMSE.training = global.RMSE.training, 
-  RMSE.OOB = global.RMSE.OOB, 
-  RMSE.total = global.RMSE.total)
-saveRDS(RMSE, RMSElist.path)
+
 ERROR <- list(
   error.training = global.error.pred,
   error.OOB = global.error.oob,
-  error.total = global.error.pred + abs(global.error.oob)
+  error.total = global.error.pred + abs(global.error.oob),
+  prob.training = global.error.pred2,
+  prob.oob = global.error.oob2,
+  RMSE.training = global.RMSE.training, 
+  RMSE.OOB = global.RMSE.OOB, 
+  RMSE.total = global.RMSE.total)
 )
 saveRDS(ERROR, errorlist.path)
+
 print("###")
 printf("Done with model=%s with n.trees=%s, shrinkage=%s.", model[model.id], ntree.val, shrink.val)
 print(Sys.time() - timeStart)
