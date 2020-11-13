@@ -12,7 +12,7 @@ options(max.print = 100)
 # subset.id       1:4 for full, func, func3, func6; 
 # subject.in.id   1:13 for "df", "quadrant", "ROC", "AUC", "iAUC",  "CompTotal", "Variables", "Heat", "CompAll", "KM", "Summary"
 # feature.id      1:4 for "absRange", "variance", "freq.green", "mean"
-# model.id        1:4 for "cox", "RF", "boosting"
+# model.id        1:4 for "cox", "RF", "boosting", "random forest-cox"
 # lambda.id       1:2, 1 for lambda.min (lmin), 2 for lambda.1se (l1se)
 # set.alpha       0:1, set alpha which was found to have lowest error rate, see find_alpha.R
 # sampling.size   1:100, number of CV iterations
