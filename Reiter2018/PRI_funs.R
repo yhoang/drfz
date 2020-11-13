@@ -12,13 +12,14 @@ is.nan.data.frame <- function(x) {
   do.call(cbind, lapply(x, is.nan))
 }
 
-
+### connecting to database
 fcs$connectDb <- function(fname) {
   this <- fcs
   this$conn <- dbConnect(SQLite(), dbname <- fname)
   print(paste("Database opened:", fname))
 }
 
+### closing database
 fcs$disconnectDb <- function() {
   dbDisconnect(fcs$conn)
 }
@@ -474,7 +475,7 @@ fcs$calc_triplot_quadrant <- function (
     temp.data <- sampl.data
     calc.meth <- stat.info[stat.id]
     min.cells <- mincells
-    prod.cutoff <- cutoffs[c(v1, v2)]
+    prod.cutoff <- NA
     size.bin <- 0.2
     min.bin.count <- NA
   }
@@ -557,12 +558,12 @@ fcs$calc_triplot_quadrant <- function (
 
       # mean.bin.x <- prod.cutoff[1]
       # mean.bin.y <- prod.cutoff[2]
-      mean.bin.x <- round(range(min.bin.x, max.bin.x) / 2, 1)
-      mean.bin.y <- round(range(min.bin.y, max.bin.y) / 2, 1)
+      mean.bin.x <- round(diff(range(min.bin.x, max.bin.x)) / 2, 1)
+      mean.bin.y <- round(diff(range(min.bin.y, max.bin.y)) / 2, 1)
 
       ### make NEW bin construct with NEW minimum and maximum x/y where bins are displayed
-      fX <- cut(temp.data[,  1], breaks=seq(min.bin.x, max.bin.x, by=size.bin), include.lowest=TRUE, dig.lab=5)
-      fY <- cut(temp.data[,  2], breaks=seq(min.bin.y, max.bin.y, by=size.bin), include.lowest=TRUE, dig.lab=5)
+      fX <- cut(temp.data[, 1], breaks=seq(min.bin.x, max.bin.x, by=size.bin), include.lowest=TRUE, dig.lab=5)
+      fY <- cut(temp.data[, 2], breaks=seq(min.bin.y, max.bin.y, by=size.bin), include.lowest=TRUE, dig.lab=5)
       tab <- table(fX, fY)
       colnames(tab) <- seq(min.bin.y, max.bin.y - size.bin, by=size.bin)
       rownames(tab) <- seq(min.bin.x, max.bin.x - size.bin, by=size.bin)
