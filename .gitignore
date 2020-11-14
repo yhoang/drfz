@@ -48,5 +48,7 @@ Good2018/pngs/*.*
 Good2018/presentations/*.*
 Spitzer2017/**/*.*
 
-### Reiter2018
-Reiter2018/Rdata/*.*
+### Reiter2019
+Reiter2019/Rdata/**/*.*
+Reiter2019/paper/**/*.*
+Reiter2019/log/**/*.*

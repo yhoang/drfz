@@ -1,7 +1,7 @@
 #!/usr/bin/R
 # author: Yen Hoang
 # DRFZ 2020-2021
-# Reiter2018
+# Reiter2019
 
 
 rm(list = ls())
@@ -24,7 +24,7 @@ create.df <- TRUE
 create.QCplots <- FALSE
 
 ### set paths
-main.dir <- file.path("D:", "drfz", "Reiter2018")
+main.dir <- file.path("D:", "drfz", "Reiter2019")
 setwd(main.dir)
 db.dir <- file.path("D:", "DB")
 
