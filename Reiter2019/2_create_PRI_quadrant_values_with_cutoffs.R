@@ -17,10 +17,10 @@ options(max.print = 100)
 # subset        full
 # comment       "autoSec" for automatic cutoffs, "manSec" for manual cutoffs set in database
 # check.cutoffs TRUE/FALSE, check if cutoffs are set in all files
-
+work.station <- "delta"
 cofactor <- 0.2
 mincells <- 5
-cluster.size <- 3
+cluster.size <- 4
 working.station = "YH"
 # db.id <- 3
 subgroup <- "Training"
@@ -30,10 +30,18 @@ subject <- "quadrant"
 stat.id <- 1
 comment <- "autoSec"
 check.cutoffs <- FALSE
+
 ### set paths
-main.dir <- file.path("D:", "drfz", "Reiter2019")
+if (work.station == "asus-vividbook") {
+  library.path = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
+  main.dir <- file.path("D:", "drfz", "Reiter2019")
+  db.dir <- file.path("D:", "DB")
+} else if (work.station == "delta") {
+  library.path <- file.path("usr","lib","R","library")
+  main.dir <- file.path("/scratch", "drfz", "Reiter2019")
+  db.dir <- file.path("/data", "databases")
+}
 setwd(main.dir)
-db.dir <- file.path("D:", "DB")
 ################
 
 
@@ -52,7 +60,6 @@ lapply(load.libraries, require, character.only = TRUE)
 source(file.path(main.dir, "PRI_funs.R"))
 printf <- function(...) invisible(print(sprintf(...)))
 
-setwd(main.dir)
 dataset.name <- c("VIE_Routine", "BUE_Dura", "BLN_Dura")
 stat.info <- c("absRange", "variance", "freq.green", "mean")
 today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
@@ -60,7 +67,7 @@ today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""),
 ### NO METADATA YET -----------------------------------------
 col.vec.func <- as.vector(unlist(read.table(file=paste0(main.dir, "/tables/columns_", subset, ".txt"))))
 
-for (db.id in 3:3) {
+for (db.id in 1:1) {
 
 # load data base -----------------------------------------
 db.name <- sprintf("FL_20201112_Reiter-%s.sqlite3", dataset.name[db.id])
@@ -125,11 +132,11 @@ len.col <- length(colvec)
 sub.set <- fileID[,2]
 it <- 0
 quad.df <- data.frame(matrix(,
-nrow <- length(sub.set),
-ncol <- (len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4 - 1),
-#ncol <- 9792, m=18, with ncol <- m * (m - 1) * (m - 2) * 0.5 * 4
-byrow <- TRUE
-), stringsAsFactors <- FALSE)
+    nrow <- length(sub.set),
+    ncol <- (len.col * (len.col - 1) * (len.col - 2) * 0.5 * 4 - 1),
+    byrow <- TRUE
+    ), stringsAsFactors <- FALSE
+)
 quad.sample_id <- vector()
 
 ### turn on clusters
