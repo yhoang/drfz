@@ -16,7 +16,7 @@ options(max.print = 100)
 cofactor <- 0.2
 trimming <- FALSE
 project.id <- 1
-db.id <- 2
+#db.id <- 2
 subgroup <- "Validation"
 subgroup <- "Training"
 
@@ -24,10 +24,14 @@ create.df <- TRUE
 create.QCplots <- FALSE
 
 ### set paths
-main.dir <- file.path("D:", "drfz", "Reiter2019")
-setwd(main.dir)
-db.dir <- file.path("D:", "DB")
+#library.path = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
+#main.dir <- file.path("D:", "drfz", "Reiter2019")
+#db.dir <- file.path("D:", "DB")
+library.path <- file.path("usr","lib","R","library")
+main.dir <- file.path("/scratch", "drfz", "Reiter2019")
+db.dir <- file.path("/data", "databases")
 
+setwd(main.dir)
 
 # load libraries ------------------------------------------
 # RSQLite     :  interact with database
@@ -37,9 +41,12 @@ db.dir <- file.path("D:", "DB")
 # limma      :  plotMDS()
 # ggrepel     :  plot MDS plot
 # RColorBrewer  :  nice color collections
-library.path <- "C:/Program Files/R/R-3.6.1/library"
+
+#library.path <- "C:/Program Files/R/R-3.6.1/library"
+
+
 .libPaths(library.path)
-libraries <- c("RSQLite", "dplyr", "reshape2", "ggplot2", "limma", "ggrepel", "RColorBrewer")
+    libraries <- c("RSQLite", "dplyr", "reshape2", "ggplot2", "limma", "ggrepel", "RColorBrewer")
 lapply(libraries, require, character.only = TRUE)
 ### load functions
 source(file.path(main.dir, "PRI_funs.R"))
@@ -47,6 +54,8 @@ source(file.path(main.dir, "PRI_funs.R"))
 ### database name
 dataset.name <- c("VIE_Routine", "BUE_Dura", "BLN_Dura")
 
+
+for (db.id in 1:3) {
 # load data base -----------------------------------------
 db.name <- sprintf("FL_20201112_Reiter-%s.sqlite3", dataset.name[db.id])
 
@@ -186,6 +195,7 @@ if (create.df) {
   print(dim(data.man.all))
 }
 dbDisconnect(fcs$conn)
+}
 
 #dark red <- "#b2182b", light red <- "#f46d43"
 #dark green <- "#006837", light green <- "#66bd63"
