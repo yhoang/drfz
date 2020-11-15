@@ -8,6 +8,7 @@ rm(list = ls())
 options(max.print = 100)
 
 # initiate ------------------------------------------------
+work.station <- "delta"
 # cofactor      1, 0.2, 0.1 (so far at 0.2)
 # trimming      TRUE, FALSE (so far FALSE)
 # project.id    1, since only one project in each database
@@ -24,14 +25,15 @@ create.df <- TRUE
 create.QCplots <- FALSE
 
 ### set paths
-#library.path = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
-#main.dir <- file.path("D:", "drfz", "Reiter2019")
-#db.dir <- file.path("D:", "DB")
-library.path <- file.path("usr","lib","R","library")
-main.dir <- file.path("/scratch", "drfz", "Reiter2019")
-db.dir <- file.path("/data", "databases")
-
-setwd(main.dir)
+if (work.station == "asus-vividbook") {
+  library.path = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
+  main.dir <- file.path("D:", "drfz", "Reiter2019")
+  db.dir <- file.path("D:", "DB")
+} else if (work.station == "delta") {
+  library.path <- file.path("usr","lib","R","library")
+  main.dir <- file.path("/scratch", "drfz", "Reiter2019")
+  db.dir <- file.path("/data", "databases")
+}
 
 # load libraries ------------------------------------------
 # RSQLite     :  interact with database
@@ -42,18 +44,16 @@ setwd(main.dir)
 # ggrepel     :  plot MDS plot
 # RColorBrewer  :  nice color collections
 
-#library.path <- "C:/Program Files/R/R-3.6.1/library"
-
-
 .libPaths(library.path)
     libraries <- c("RSQLite", "dplyr", "reshape2", "ggplot2", "limma", "ggrepel", "RColorBrewer")
 lapply(libraries, require, character.only = TRUE)
+
 ### load functions
+setwd(main.dir)
 source(file.path(main.dir, "PRI_funs.R"))
 
 ### database name
 dataset.name <- c("VIE_Routine", "BUE_Dura", "BLN_Dura")
-
 
 for (db.id in 1:3) {
 # load data base -----------------------------------------
