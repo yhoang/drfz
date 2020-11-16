@@ -1,5 +1,5 @@
 #!/usr/bin/R
-# author: Yen Hoang
+# Authors: Yen Hoang, Felix Lohrke and Max Salomon
 # DRFZ 2020-2021
 # Reiter2019
 
@@ -13,7 +13,7 @@ options(max.print = 100)
 # stat.id       1:4 for absRange, variance, freq.green, mean
 # cluster.size  1:12, detect with detectCores()
 # db.id         1:3 for VIE_Routine, BUE_Dura, BLN_Dura
-# subgroup      "Validation", "Training"
+# subgroup      "Total", "Validation", "Training"
 # subset        full
 # comment       "autoSec" for automatic cutoffs, "manSec" for manual cutoffs set in database
 # check.cutoffs TRUE/FALSE, check if cutoffs are set in all files
@@ -21,10 +21,9 @@ work.station <- "delta"
 cofactor <- 0.2
 mincells <- 5
 cluster.size <- 4
-working.station = "YH"
 # db.id <- 3
-subgroup <- "Training"
-# subgroup <- "Validation"
+subgroup <- "Total"
+
 subset <- "full"
 subject <- "quadrant"
 stat.id <- 1
@@ -33,11 +32,11 @@ check.cutoffs <- FALSE
 
 ### set paths
 if (work.station == "asus-vividbook") {
-  library.path = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
+  library.dir = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
   main.dir <- file.path("D:", "drfz", "Reiter2019")
   db.dir <- file.path("D:", "DB")
 } else if (work.station == "delta") {
-  library.path <- file.path("usr","lib","R","library")
+  library.dir <- file.path("usr","lib","R","library")
   main.dir <- file.path("/scratch", "drfz", "Reiter2019")
   db.dir <- file.path("/data", "databases")
 }
@@ -53,8 +52,9 @@ setwd(main.dir)
 # dplyr      :  faster binding of columns bind_cols() and rows bind_rows()
 # foreach     :  allows for each loops
 # doParallel   :  use several clusters for parallele calculations
+.libPaths(library.dir)
 load.libraries <- c("RSQLite", "dplyr", "reshape2", "foreach", "doParallel", "stringr")
-#install.packages(libraries, lib = "C:/Program Files/R/R-3.6.1/library")
+#install.packages(libraries, lib = library.dir)
 lapply(load.libraries, require, character.only = TRUE)
 ### load functions
 source(file.path(main.dir, "PRI_funs.R"))
@@ -67,7 +67,7 @@ today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""),
 ### NO METADATA YET -----------------------------------------
 col.vec.func <- as.vector(unlist(read.table(file=paste0(main.dir, "/tables/columns_", subset, ".txt"))))
 
-for (db.id in 1:1) {
+for (db.id in 3:3) {
 
 # load data base -----------------------------------------
 db.name <- sprintf("FL_20201112_Reiter-%s.sqlite3", dataset.name[db.id])

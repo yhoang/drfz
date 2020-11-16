@@ -1,5 +1,5 @@
 #!/usr/bin/R
-# author: Yen Hoang
+# Authors: Yen Hoang, Felix Lohrke and Maximilian Salomon
 # DRFZ 2020-2021
 # Reiter2019
 
@@ -13,24 +13,23 @@ work.station <- "delta"
 # trimming      TRUE, FALSE (so far FALSE)
 # project.id    1, since only one project in each database
 # db.id         1:3 for VIE_Routine, BUE_Dura, BLN_Dura
-# subgroup      "Validation", "Training" (not using currently)
+# subgroup      "Total", "Validation", "Training" (not using currently)
 cofactor <- 0.2
 trimming <- FALSE
 project.id <- 1
 #db.id <- 2
-subgroup <- "Validation"
-subgroup <- "Training"
+subgroup <- "Total"
 
 create.df <- TRUE
 create.QCplots <- FALSE
 
 ### set paths
 if (work.station == "asus-vividbook") {
-  library.path = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
+  library.dir = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
   main.dir <- file.path("D:", "drfz", "Reiter2019")
   db.dir <- file.path("D:", "DB")
 } else if (work.station == "delta") {
-  library.path <- file.path("usr","lib","R","library")
+  library.dir <- file.path("usr","lib","R","library")
   main.dir <- file.path("/scratch", "drfz", "Reiter2019")
   db.dir <- file.path("/data", "databases")
 }
@@ -43,9 +42,8 @@ if (work.station == "asus-vividbook") {
 # limma      :  plotMDS()
 # ggrepel     :  plot MDS plot
 # RColorBrewer  :  nice color collections
-
-.libPaths(library.path)
-    libraries <- c("RSQLite", "dplyr", "reshape2", "ggplot2", "limma", "ggrepel", "RColorBrewer")
+.libPaths(library.dir)
+libraries <- c("RSQLite", "dplyr", "reshape2", "ggplot2", "limma", "ggrepel", "RColorBrewer")
 lapply(libraries, require, character.only = TRUE)
 
 ### load functions
