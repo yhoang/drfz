@@ -560,6 +560,9 @@ fcs$calc_triplot_quadrant <- function (
       # mean.bin.y <- prod.cutoff[2]
       mean.bin.x <- round(diff(range(min.bin.x, max.bin.x)) / 2, 1)
       mean.bin.y <- round(diff(range(min.bin.y, max.bin.y)) / 2, 1)
+      # if mean is not even
+      !is.even(mean.bin.x) {mean.bin.x <- mean.bin.x + size.bin/2}
+      !is.even(mean.bin.y) {mean.bin.y <- mean.bin.y + size.bin/2}
 
       ### make NEW bin construct with NEW minimum and maximum x/y where bins are displayed
       fX <- cut(temp.data[, 1], breaks=seq(min.bin.x, max.bin.x, by=size.bin), include.lowest=TRUE, dig.lab=5)
