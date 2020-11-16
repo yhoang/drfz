@@ -143,7 +143,7 @@ cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 ptm <- proc.time()
 
-for (i in 1:length(sub.set)) {
+for (i in 143:length(sub.set)) {
 # for (i in 1:2) {
 
     if (load.from.DB) {
