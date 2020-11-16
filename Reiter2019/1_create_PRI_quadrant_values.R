@@ -143,8 +143,8 @@ cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 ptm <- proc.time()
 
-for (i in 143:length(sub.set)) {
-# for (i in 1:2) {
+# for (i in 144:length(sub.set)) {
+for (i in 143:143) {
 
     if (load.from.DB) {
         ### access data from Sqlite database
