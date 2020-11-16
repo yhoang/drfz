@@ -98,7 +98,11 @@ if (create.df) {
   pat.not.found <- new.sub.set.id <- vector()
   for (i in 1:length(sub.set)) {
     pat.id <- file.name <- sub.set[i]
-    pat.id <- substr(file.name, 1, 6)
+    if (db.id == 1) { ### filenames in database VIE are longer
+      pat.id <- substr(file.name, 1, 10)
+    } else { 
+      pat.id <- substr(file.name, 1, 6) 
+    }
     printf("%s/%s::Looking for file %s..", i, length(sub.set), file.name)
     file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
     

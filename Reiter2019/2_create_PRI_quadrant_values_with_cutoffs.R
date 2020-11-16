@@ -70,7 +70,8 @@ stat.info <- c("absRange", "variance", "freq.green", "mean")
 today <- paste0(initials, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 ### NO METADATA YET -----------------------------------------
-col.vec.func <- as.vector(unlist(read.table(file=paste0(main.dir, "/tables/columns_", subset, ".txt"))))
+### NOTE: db VIE has one marker less - might affect downstream analysis!
+col.vec.func <- as.vector(unlist(read.table(file=paste0(main.dir, "/tables/columns_", dataset.name[db.id], "_", subset, ".txt"))))
 len.col <- length(col.vec.func)
 
 ####### load data base -----------------------------------------
@@ -143,16 +144,13 @@ registerDoParallel(cl)
 ptm <- proc.time()
 
 for (i in 1:length(sub.set)) {
-# for (i in c(5:7, 28)) {
 # for (i in 1:2) {
 
     if (load.from.DB) {
         ### access data from Sqlite database
         pat.id <- file.name <- sub.set[i]
         if (db.id == 1) {pat.id <- substr(file.name, 1, 10)
-	} else {
-		pat.id <- substr(file.name, 1, 6)
-	}
+        } else { pat.id <- substr(file.name, 1, 6) }
         printf("%s/%s::Looking for file %s..", i, length(sub.set), file.name)
         file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
         ### get data with cofactor
@@ -191,7 +189,7 @@ for (i in 1:length(sub.set)) {
             quadrant.vec <- vector()
 
             for (v3 in 1:len.col) {
-            # for (v3 in 7:7) {
+            # for (v3 in 1:1) {
                 if (all(v3 != c(v1, v2))) {
 
                     sampl.data <- temp.data.all[ ,c(colvec[v1], colvec[v2], colvec[v3])]
