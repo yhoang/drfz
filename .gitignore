@@ -14,6 +14,7 @@ Good2018/coxhazard/BCR/**/*.*
 Good2018/coxhazard/NRI.IDI/**/*.*
 ### results random forest
 Good2018/randomforest/Basal/**/*.*
+Good2018/randomforest/BCR/**/*.*
 Good2018/randomforest/DDPR/**/*.*
 ### results boosting tree cox hazard
 Good2018/boostingtree/Basal/**/*.*

@@ -8,6 +8,9 @@ rm(list = ls())
 options(max.print = 100)
 
 ### ----------- initiate
+# initials      "YH", "FL", "MS" 
+# work.station  set correct paths
+# load.from.DB  TRUE/FALSE, to load data from Sqlite db or from RDS file (merge from script 1+2)
 # cofactor      1, 0.2, 0.1 (so far at 0.2)
 # mincells      2,5,10,20 (so far at 5)
 # stat.id       1:4 for absRange, variance, freq.green, mean
@@ -17,11 +20,13 @@ options(max.print = 100)
 # subset        full
 # comment       "autoSec" for automatic cutoffs, "manSec" for manual cutoffs set in database
 # check.cutoffs TRUE/FALSE, check if cutoffs are set in all files
-work.station <- "delta"
+initials <- "YH"
+work.station <- "asus-vivid"
+load.from.DB <- TRUE
 cofactor <- 0.2
 mincells <- 5
-cluster.size <- 4
-# db.id <- 3
+cluster.size <- 1
+db.id <- 3
 subgroup <- "Total"
 
 subset <- "full"
@@ -31,7 +36,7 @@ comment <- "autoSec"
 check.cutoffs <- FALSE
 
 ### set paths
-if (work.station == "asus-vividbook") {
+if (work.station == "asus-vivid") {
   library.dir = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
   main.dir <- file.path("D:", "drfz", "Reiter2019")
   db.dir <- file.path("D:", "DB")
@@ -62,16 +67,14 @@ printf <- function(...) invisible(print(sprintf(...)))
 
 dataset.name <- c("VIE_Routine", "BUE_Dura", "BLN_Dura")
 stat.info <- c("absRange", "variance", "freq.green", "mean")
-today <- paste0(working.station, substring(str_replace_all(Sys.Date(), "-", ""), 3))
+today <- paste0(initials, substring(str_replace_all(Sys.Date(), "-", ""), 3))
 
 ### NO METADATA YET -----------------------------------------
 col.vec.func <- as.vector(unlist(read.table(file=paste0(main.dir, "/tables/columns_", subset, ".txt"))))
+len.col <- length(col.vec.func)
 
-for (db.id in 3:3) {
-
-# load data base -----------------------------------------
+####### load data base -----------------------------------------
 db.name <- sprintf("FL_20201112_Reiter-%s.sqlite3", dataset.name[db.id])
-
 fcs$connectDb(file.path(db.dir, db.name))
 ### select project
 db.idx <- which(dbListTables(fcs$conn) == dataset.name[db.id])
@@ -104,29 +107,24 @@ if (check.cutoffs) {
     }
     try(if (stopping) stop("Check your cutoffs!"))
 }
-dbDisconnect(fcs$conn)
 
-############### INPUT dataframe name RDS - file
-data.table.name <- sprintf("%s/%s/%s/%s_%s_df_cof%s.rds", main.dir, sub.dir[1], dataset.name[db.id], dataset.name[db.id], subgroup, cofactor)
-############### OUTPUT
+############### SET OUTPUT FILE NAMES
 # dataframe name RDS - file
 quad.table.name <- sprintf("%s/%s/%s/%s_%s_%s_%s_%s_%s.cof%s_%s.rds", main.dir, sub.dir[1], dataset.name[db.id], dataset.name[db.id], subgroup, subset, subject, stat.info[stat.id], comment, cofactor, today)
 # log file
-logFile <- sprintf("%s/%s/2_create_PRI_%s_%s_%s_%s.log", main.dir, sub.dir[3], subject, dataset.name[db.id], subgroup, today)
+log.File <- sprintf("%s/%s/2_create_PRI_%s_%s_%s_%s.log", main.dir, sub.dir[3], subject, dataset.name[db.id], subgroup, today)
 ################
 
-### load matrix temp.data.all
-temp.data.all <- readRDS(data.table.name)
-temp.data.all <- as.data.frame(temp.data.all)
-print(dim(temp.data.all))
-
+if (!load.from.DB) {
+    ### INPUT dataframe name RDS - file
+    data.table.name <- sprintf("%s/%s/%s/%s_%s_df_cof%s.rds", main.dir, sub.dir[1], dataset.name[db.id], dataset.name[db.id], subgroup, cofactor)
+    ### load matrix temp.data.all
+    temp.data.all <- readRDS(data.table.name)
+    temp.data.all <- as.data.frame(temp.data.all)
+    print(dim(temp.data.all))
+}
 
 ### - - - - triplots quadrants, cache=TRUE - - - - - - - - - - - - - - - - - -
-col.func.idx <- which(names(temp.data.all) %in% col.vec.func)
-temp.data.all <- temp.data.all[, c(1, col.func.idx)]
-len.var <- ncol(temp.data.all) - 1
-colvec <- colnames(temp.data.all)[2:ncol(temp.data.all)]
-len.col <- length(colvec)
 
 ### ---------- initate
 sub.set <- fileID[,2]
@@ -143,9 +141,33 @@ quad.sample_id <- vector()
 cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 ptm <- proc.time()
+
 for (i in 1:length(sub.set)) {
 # for (i in c(5:7, 28)) {
-# for (i in 1:1) {
+# for (i in 1:2) {
+
+    if (load.from.DB) {
+        ### access data from Sqlite database
+        pat.id <- file.name <- sub.set[i]
+        pat.id <- substr(file.name, 1, 6)
+        printf("%s/%s::Looking for file %s..", i, length(sub.set), file.name)
+        file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
+        ### get data with cofactor
+        temp.data.all <- fcs$getData(table = dataset.name[db.id], fileidx = file.idx, cofactor=cofactor)
+        
+        ### set negative expressions to zero
+        temp.data.all[temp.data.all < 0] <- 0
+        
+        ### get short names
+        colnames(temp.data.all) <- stainID$shortname[which(stainID$file_ID == file.idx)]
+        
+        col.fileid <- rep(unlist(pat.id), nrow(temp.data.all))
+        col.func.idx <- which(names(temp.data.all) %in% col.vec.func)
+        temp.data.all <- as.data.frame(bind_cols(file_id=col.fileid, temp.data.all[, col.func.idx]))
+        len.var <- ncol(temp.data.all) - 1
+        colvec <- colnames(temp.data.all)[2:ncol(temp.data.all)]
+    }
+
     quad.sample_id <- c(quad.sample_id, as.character(sub.set[i]))
 
     if (comment != "autoSec") {
@@ -225,7 +247,7 @@ for (i in 1:length(sub.set)) {
     printf("File %s ready (it=%s)", i, it)
     print(proc.time() - ptm)
 
-    sink(logFile, append = TRUE)
+    sink(log.File, append = TRUE)
     cat(paste0(date(), "\n"), append = TRUE)
     cat(sprintf("%s::%s::%s::%s::%s::cluster=%s \n", i, sub.set[i], dataset.name[db.id], subgroup, subset, cluster.size), append = TRUE)
     cat(paste0(proc.time() - ptm, collapse = " "), append = TRUE)
@@ -242,6 +264,7 @@ rownames(quad.df) <- quad.sample_id
 saveRDS(quad.df, file=quad.table.name)
 printf("%s saved!", quad.table.name)
 
+dbDisconnect(fcs$conn)
+
 stopCluster(cl)
 
-}

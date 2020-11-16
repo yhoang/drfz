@@ -24,7 +24,7 @@ create.df <- TRUE
 create.QCplots <- FALSE
 
 ### set paths
-if (work.station == "asus-vividbook") {
+if (work.station == "asus-vivid") {
   library.dir = file.path("C:", "Program Files", "R", "R-3.6.1", "library")
   main.dir <- file.path("D:", "drfz", "Reiter2019")
   db.dir <- file.path("D:", "DB")
