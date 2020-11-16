@@ -21,12 +21,12 @@ options(max.print = 100)
 # comment       "autoSec" for automatic cutoffs, "manSec" for manual cutoffs set in database
 # check.cutoffs TRUE/FALSE, check if cutoffs are set in all files
 initials <- "YH"
-work.station <- "asus-vivid"
+work.station <- "delta"
 load.from.DB <- TRUE
 cofactor <- 0.2
 mincells <- 5
 cluster.size <- 1
-db.id <- 3
+db.id <- 1
 subgroup <- "Total"
 
 subset <- "full"
@@ -149,7 +149,10 @@ for (i in 1:length(sub.set)) {
     if (load.from.DB) {
         ### access data from Sqlite database
         pat.id <- file.name <- sub.set[i]
-        pat.id <- substr(file.name, 1, 6)
+        if (db.id == 1) {pat.id <- substr(file.name, 1, 10)
+	} else {
+		pat.id <- substr(file.name, 1, 6)
+	}
         printf("%s/%s::Looking for file %s..", i, length(sub.set), file.name)
         file.idx <- fileID$file_ID[which(fileID$filename == file.name)]
         ### get data with cofactor
