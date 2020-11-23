@@ -128,7 +128,7 @@ if (!load.from.DB) {
     if (sum(is.na(temp.data.all)) > 0) {
         printf("%s NAs in all data from %s. Removing..", sum(is.na(temp.data.all)), dataset.name[db.id])
         sink(log.File, append = TRUE)
-        cat(sprintf("%s NAs in temp.data.all. Removing..", sum(is.na(temp.data.all))), append = TRUE))
+        cat(sprintf("%s NAs in temp.data.all. Removing..", sum(is.na(temp.data.all))), append = TRUE)
         sink()
     }
     temp.data.all <- na.omit(temp.data.all)
@@ -171,7 +171,7 @@ for (i in 1:length(sub.set)) {
         if (sum(is.na(temp.data.all)) > 0) {
             printf("%s NAs in %s. Removing..", sum(is.na(temp.data.all)), pat.id)
             sink(log.File, append = TRUE)
-            cat(sprintf("%s NAs in %s. Removing..", sum(is.na(temp.data.all)), pat.id), append = TRUE))
+            cat(sprintf("%s NAs in %s. Removing..", sum(is.na(temp.data.all)), pat.id), append = TRUE)
             sink()
         }
         temp.data.all <- na.omit(temp.data.all)
