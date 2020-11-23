@@ -125,7 +125,12 @@ if (!load.from.DB) {
     print(dim(temp.data.all))
 
     ### removing rows with NAs
-    printf("%s NAs in all data from %s. Removing..", sum(is.na(table)), dataset.name[db.id])
+    if (sum(is.na(temp.data.all)) > 0) {
+        printf("%s NAs in all data from %s. Removing..", sum(is.na(temp.data.all)), dataset.name[db.id])
+        sink(log.File, append = TRUE)
+        cat(sprintf("%s NAs in temp.data.all. Removing..", sum(is.na(temp.data.all))), append = TRUE))
+        sink()
+    }
     temp.data.all <- na.omit(temp.data.all)
 }
 
@@ -163,7 +168,12 @@ for (i in 1:length(sub.set)) {
         ### set negative expressions to zero
         temp.data.all[temp.data.all < 0] <- 0
         ### removing rows with NAs
-        printf("%s NAs in table. Removing..", sum(is.na(table)))
+        if (sum(is.na(temp.data.all)) > 0) {
+            printf("%s NAs in %s. Removing..", sum(is.na(temp.data.all)), pat.id)
+            sink(log.File, append = TRUE)
+            cat(sprintf("%s NAs in %s. Removing..", sum(is.na(temp.data.all)), pat.id), append = TRUE))
+            sink()
+        }
         temp.data.all <- na.omit(temp.data.all)
         
         ### get short names
