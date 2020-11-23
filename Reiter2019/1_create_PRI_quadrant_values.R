@@ -91,7 +91,7 @@ dir.create(file.path(main.dir, sub.dir[3]), showWarnings = FALSE)
 ### ------ check if all cutoffs are set for each sampleID
 if (check.cutoffs) {
     stopping <- FALSE
-    stainID2 <- fcs$getDFtable(paste0(dataset.name[1], "_markerIdentity"))
+    stainID2 <- fcs$getDFtable(paste0(dataset.name[db.id], "_markerIdentity"))
     vars <- unique(stainID$shortname)
     for (i in 1:length(vars)) {
         if (unique(stainID[which(stainID$shortname == vars[i]), 5]) != unique(stainID2[which(stainID2$shortname == vars[i]), 5])) {
@@ -123,6 +123,10 @@ if (!load.from.DB) {
     temp.data.all <- readRDS(data.table.name)
     temp.data.all <- as.data.frame(temp.data.all)
     print(dim(temp.data.all))
+
+    ### removing rows with NAs
+    printf("%s NAs in all data from %s. Removing..", sum(is.na(table)), dataset.name[db.id])
+    temp.data.all <- na.omit(temp.data.all)
 }
 
 ### - - - - triplots quadrants, cache=TRUE - - - - - - - - - - - - - - - - - -
@@ -143,8 +147,8 @@ cl <- makeCluster(cluster.size)
 registerDoParallel(cl)
 ptm <- proc.time()
 
-# for (i in 144:length(sub.set)) {
-for (i in 143:143) {
+for (i in 1:length(sub.set)) {
+# for (i in 143:143) {
 
     if (load.from.DB) {
         ### access data from Sqlite database
@@ -158,6 +162,9 @@ for (i in 143:143) {
         
         ### set negative expressions to zero
         temp.data.all[temp.data.all < 0] <- 0
+        ### removing rows with NAs
+        printf("%s NAs in table. Removing..", sum(is.na(table)))
+        temp.data.all <- na.omit(temp.data.all)
         
         ### get short names
         colnames(temp.data.all) <- stainID$shortname[which(stainID$file_ID == file.idx)]
