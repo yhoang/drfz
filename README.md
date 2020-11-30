@@ -1,4 +1,4 @@
 # drfz
-different projects and function collection in R
+Different projects and function collections in R
 
-long description will follow when manuscript is published
+These are the re-analyses on mass cytometry data, divided in different subsets and machine learning algorithms.
