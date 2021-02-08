@@ -356,7 +356,7 @@ fcs$bindiploT_table <- function(
 ##### Calculate triplot quadrants function
 ##### @param
 # temp.data     temporary data with 3 columns v1,v2,v3
-# calc.meth     calculation method to use [mean,sd,median,zrange,absRange,relRange,var]
+# calc.meth     calculation method to use [mean,sd,median,zrange,absRange,relRange,var, trimAbs]
 # prod.cutoff   cutoff to divide neg/pos cells, here to divide quadrants. Be aware! Changes with different cofactors for asinh transformation
 # size.bin      bin size
 # min.cells     minimum number of cells per bin to consider this a countable bin
@@ -548,11 +548,20 @@ fcs$calc_triplot_quadrant <- function (
     ))
     ### return variance of every quadrants listed bins with minimum cells and used calculation method
   } else if (calc.meth == "variance") {
-    return( c(round(mean(vec.q1),3),
+    return( c(round(var(vec.q1),3),
               round(var(vec.q2),3),
               round(var(vec.q3),3),
               round(var(vec.q4),3) 
     ))
+
+    ### return trimmed mean + absRange of every quadrants listed bins with minimum cells and used calculation method
+  } else if (calc.meth == "trimAbs") {
+    return(c(round(mean(vec.q1, trim = 0.2) + diff(range(vec.q1)), 3),
+              round(mean(vec.q2, trim = 0.2) + diff(range(vec.q2)), 3),
+              round(mean(vec.q3, trim = 0.2) + diff(range(vec.q3)), 3),
+              round(mean(vec.q4, trim = 0.2) + diff(range(vec.q4)), 3)
+    ))
+
     ### return mean of every quadrants listed bins with minimum cells and used calculation method
   } else {
     return( c(round(mean(vec.q1),3),
